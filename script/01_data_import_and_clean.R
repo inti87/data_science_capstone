@@ -1,15 +1,22 @@
-# Import data
+# Import & clean data
 
 rm(list =ls())
 graphics.off()
+
+# procedure time (start)
+st <- Sys.time() 
 
 library(tm)
 library(stringr)
 library(dplyr)
 
 source("./script/sample_lines.R")
+source("./script/import_text.R")
+source("./script/corpus_cleaning.R")
 
 # Import data
+
+## Corpus data source
 
 list.files("./data/Coursera-SwiftKey/final/en_US/")
 
@@ -20,42 +27,45 @@ list.files("./data/Coursera-SwiftKey/final/en_US/")
 # summary(corpus.en_US)  #check what went in
 
 #loading a text file from local computer
-data.en_news    <- readLines("./data/Coursera-SwiftKey/final/en_US/en_US.news.txt", encoding = "UTF-8")
-data.en_blogs   <- readLines("./data/Coursera-SwiftKey/final/en_US/en_US.blogs.txt", encoding = "UTF-8")
-data.en_twitter <- readLines("./data/Coursera-SwiftKey/final/en_US/en_US.twitter.txt", encoding = "UTF-8")
+data.en_news.raw    <- import_text(path = "./data/Coursera-SwiftKey/final/en_US/en_US.news.txt")
+data.en_blogs.raw   <- import_text(path = "./data/Coursera-SwiftKey/final/en_US/en_US.blogs.txt")
+data.en_twitter.raw <- import_text(path = "./data/Coursera-SwiftKey/final/en_US/en_US.twitter.txt")
 
 
 #Load data as corpus
 #VectorSource() creates character vectors
-data.en_news.corp <- Corpus(VectorSource(data.en_news))
-data.en_blogs.corp <- Corpus(VectorSource(data.en_blogs))
-data.en_twitter.corp <- Corpus(VectorSource(data.en_twitter))
+data.en_news.corp.raw    <- VCorpus(VectorSource(data.en_news.raw))
+data.en_blogs.corp.raw   <- VCorpus(VectorSource(data.en_blogs.raw))
+data.en_twitter.corp.raw <- VCorpus(VectorSource(data.en_twitter.raw))
+
+## Other sources
+
+### Profanity - bad words
+profanity_words <- read.csv(file = "http://www.bannedwordlist.com/lists/swearWords.txt") %>% 
+  pull() %>% 
+  VectorSource(.)
+  
+
+# Clean data (corpus data)
+data.en_news.corp.clean    <- clean_corpus(corpus = data.en_news.corp.raw)
+data.en_blogs.corp.clean        <- clean_corpus(corpus = data.en_blogs.corp.raw)
+data.en_twitter.corp.clean <- clean_corpus(corpus = data.en_twitter.corp.raw)
 
 
-# Clean data
+# procedure end time
+et <- Sys.time() 
+exec.time <- et - st; print(exec.time)
 
-# convert to lower case
-data.en_news.corp <- tm_map(data.en_news.corp, content_transformer(tolower))
+# Save clean data
+save.image(file = "./data/clean_data.RData")
 
-#remove ������ what would be emojis
-data.en_news.corp <- tm_map(data.en_news.corp, content_transformer(gsub), pattern="\\W",replace=" ")
 
-# remove URLs
-removeURL <- function(x) gsub("http[^[:space:]]*", "", x)
-mydata <- tm_map(mydata, content_transformer(removeURL)
-)
-# remove anything other than English letters or space
-removeNumPunct <- function(x) gsub("[^[:alpha:][:space:]]*", "", x)
-mydata <- tm_map(mydata, content_transformer(removeNumPunct))
-# remove stopwords
-mydata <- tm_map(mydata, removeWords, stopwords("english"))
-#u can create custom stop words using the code below.
-#myStopwords <- c(setdiff(stopwords('english'), c("r", "big")),"use", "see", "used", "via", "amp")
-#mydata <- tm_map(mydata, removeWords, myStopwords)
-# remove extra whitespace
-mydata <- tm_map(mydata, stripWhitespace)
-# Remove numbers
-mydata <- tm_map(mydata, removeNumbers)
-# Remove punctuations
-mydata <- tm_map(mydata, removePunctuation)
+# Sample data & save sampled data
+data.en_news.corp.clean <- sample_lines(text = data.en_news.corp.clean, type = "percentage", percentage = .1)
+data.en_blogs.corp.clean <- sample_lines(text = data.en_blogs.corp.clean, type = "percentage", percentage = .1)
+data.en_twitter.corp.clean <- sample_lines(text = data.en_twitter.corp.clean, type = "percentage", percentage = .1)
+
+save(data.en_news.corp.clean, data.en_blogs.corp.clean, data.en_twitter.corp.clean, file = "./data/clean_sample_data.RData")
+
+
 
