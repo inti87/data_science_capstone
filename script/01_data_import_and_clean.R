@@ -48,7 +48,7 @@ profanity_words <- read.csv(file = "http://www.bannedwordlist.com/lists/swearWor
 
 # Clean data (corpus data)
 data.en_news.corp.clean    <- clean_corpus(corpus = data.en_news.corp.raw)
-data.en_blogs.corp.clean        <- clean_corpus(corpus = data.en_blogs.corp.raw)
+data.en_blogs.corp.clean   <- clean_corpus(corpus = data.en_blogs.corp.raw)
 data.en_twitter.corp.clean <- clean_corpus(corpus = data.en_twitter.corp.raw)
 
 
@@ -61,11 +61,12 @@ save.image(file = "./data/clean_data.RData")
 
 
 # Sample data & save sampled data
-data.en_news.corp.clean <- sample_lines(text = data.en_news.corp.clean, type = "percentage", percentage = .1)
-data.en_blogs.corp.clean <- sample_lines(text = data.en_blogs.corp.clean, type = "percentage", percentage = .1)
-data.en_twitter.corp.clean <- sample_lines(text = data.en_twitter.corp.clean, type = "percentage", percentage = .1)
+data.en_news.corp.clean    <- sample_lines(text = data.en_news.corp.clean, type = "percentage", percentage = .05)
+data.en_blogs.corp.clean   <- sample_lines(text = data.en_blogs.corp.clean, type = "percentage", percentage = .05)
+data.en_twitter.corp.clean <- sample_lines(text = data.en_twitter.corp.clean, type = "percentage", percentage = .05)
 
-save(data.en_news.corp.clean, data.en_blogs.corp.clean, data.en_twitter.corp.clean, file = "./data/clean_sample_data.RData")
-
-
+save(data.en_news.corp.clean, 
+     data.en_blogs.corp.clean, 
+     data.en_twitter.corp.clean, 
+     file = "./data/clean_sample_data.RData")
 
