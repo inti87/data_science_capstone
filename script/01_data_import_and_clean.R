@@ -56,8 +56,11 @@ data.en_twitter.corp.clean <- clean_corpus(corpus = data.en_twitter.corp.raw)
 et <- Sys.time() 
 exec.time <- et - st; print(exec.time)
 
-# Save clean data
+# Save clean data all
 save.image(file = "./data/clean_data.RData")
+
+# Save clean data only news (just clean corpus)
+save(data.en_news.corp.clean, file = "./data/news_corpus_clean.RData")
 
 
 # Sample data & save sampled data
