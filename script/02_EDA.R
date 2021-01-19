@@ -17,24 +17,22 @@ source("./script/corpus_cleaning.R")
 source("./script/term_freq_vec_df.R")
 
 # Import clean data
-ch.import <- "sample" # sample or full data?
+ch.import <- "clean.sample.news" # sample or full data?
 
 if(ch.import == "sample"){
-  
   load("./data/clean_sample_data.RData")
-  
 }else if(ch.import == "clean.news"){
-  
   load("./data/news_corpus_clean.RData")
-  
+}else if(ch.import == "clean.sample.news"){
+  load("./data/news_corpus_clean_sample.RData")
 }else(load("./data/clean_data.RData"))
 
 # EDA
 
 ## Check summaries - size of corpus
 length(data.en_news.corp.clean)
-length(data.en_blogs.corp.clean)
-length(data.en_twitter.corp.clean)
+# length(data.en_blogs.corp.clean)
+# length(data.en_twitter.corp.clean)
 
 
 # Count-based evaluation
@@ -51,7 +49,7 @@ freq100
 
 # Build term frequency vector & term frequency vector stored as data frame
 news.TFV <- sapply(data.en_news.corp.clean, termFreq) # TFV vector-list
-TFV.df <- term_freq_vec_df(news_TFV = news_TFV, parallel = TRUE) # TFV vector-data frame
+TFV.df <- term_freq_vec_df(news_TFV = news.TFV, parallel = TRUE) # TFV vector-data frame
 
 # Term frequency vector word level summarized
 TFV.df.sum <- TFV.df %>% 
@@ -76,7 +74,7 @@ TFV.df.sum %>%
   mutate(word = fct_inorder(f = word)) %>% 
   ggplot(aes(x = word, y = frequency)) +
   geom_col(color = "black") +
-  scale_y_continuous(breaks = seq(0,15000,500)) +
+  scale_y_continuous(breaks = seq(0,100000,1000)) +
   xlab("Word") +
   ylab("Frequency (word count in documents)") +
   ggtitle("Top 50 most frequent words in the corpus") +
@@ -85,15 +83,14 @@ TFV.df.sum %>%
 # Word cloud
 set.seed(135) # randomness in positioning labels in the cloud
 TFV.df.sum %>% 
-  filter(rank_word <= 30) %>% 
+  mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>% 
+  mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>% 
+  filter(rank_word <= 250) %>% 
   ggplot(aes(label = word, 
              size = rank_word, 
-             #angle = angle1,
-             #color = manufacturer
-             )) +
+             angle = angle1)) +
   geom_text_wordcloud() +
-  scale_size_area(max_size = 30) +
-  #scale_color_viridis_d(option = "magma") +
+  scale_size_area(max_size = 15) +
   theme_minimal()
 
 # Question 3: How many unique words do you need in a frequency sorted dictionary to cover 

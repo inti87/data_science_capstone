@@ -7,6 +7,7 @@ graphics.off()
 st <- Sys.time() 
 
 library(tm)
+library(SnowballC)
 library(stringr)
 library(dplyr)
 
@@ -64,12 +65,14 @@ save(data.en_news.corp.clean, file = "./data/news_corpus_clean.RData")
 
 
 # Sample data & save sampled data
-data.en_news.corp.clean    <- sample_lines(text = data.en_news.corp.clean, type = "percentage", percentage = .05)
-data.en_blogs.corp.clean   <- sample_lines(text = data.en_blogs.corp.clean, type = "percentage", percentage = .05)
-data.en_twitter.corp.clean <- sample_lines(text = data.en_twitter.corp.clean, type = "percentage", percentage = .05)
+data.en_news.corp.clean    <- sample_lines(text = data.en_news.corp.clean, type = "percentage", percentage = .10)
+data.en_blogs.corp.clean   <- sample_lines(text = data.en_blogs.corp.clean, type = "percentage", percentage = .10)
+data.en_twitter.corp.clean <- sample_lines(text = data.en_twitter.corp.clean, type = "percentage", percentage = .10)
 
 save(data.en_news.corp.clean, 
      data.en_blogs.corp.clean, 
      data.en_twitter.corp.clean, 
      file = "./data/clean_sample_data.RData")
 
+save(data.en_news.corp.clean, 
+     file = "./data/news_corpus_clean_sample.RData")
