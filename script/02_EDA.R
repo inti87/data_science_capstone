@@ -4,6 +4,7 @@ rm(list =ls())
 graphics.off()
 
 library(tm)
+library(RWeka)
 library(stringr)
 library(dplyr)
 library(tidyr)
@@ -37,7 +38,7 @@ length(data.en_news.corp.clean)
 
 # Count-based evaluation
 
-## Build Term-Document Matrix
+# Build Term-Document Matrix
 set.seed(11235)
 news.TDM <- TermDocumentMatrix(data.en_news.corp.clean)
 # news.corp.dtm <- TermDocumentMatrix(data.en_news.corp.clean)
@@ -47,11 +48,14 @@ news.TDM <- TermDocumentMatrix(data.en_news.corp.clean)
 freq100 <- findFreqTerms(x = news.TDM, lowfreq = 100, highfreq = Inf) # occurred at least 100 times
 freq100
 
-# Build term frequency vector & term frequency vector stored as data frame
+## Build term frequency vector & term frequency vector stored as data frame
 news.TFV <- sapply(data.en_news.corp.clean, termFreq) # TFV vector-list
 TFV.df <- term_freq_vec_df(news_TFV = news.TFV, parallel = TRUE) # TFV vector-data frame
 
-# Term frequency vector word level summarized
+# save.image("./data/TFV_built.RData")
+# load("./data/TFV_built.RData")
+
+## Term frequency vector word level summarized
 TFV.df.sum <- TFV.df %>% 
   group_by(word) %>% 
   summarise(in_docs = n(), 
@@ -63,6 +67,34 @@ TFV.df.sum <- TFV.df %>%
          rank_word = row_number(),
          percent_words_covered = frequency_total_cum_sum / frequency_total) %>% 
   select(rank_word, everything())
+
+
+# Build n-grams (multiple words) - we will also check frequencies of n-grams
+data.en_news.corp.clean.small <- data.en_news.corp.clean[1:50000]
+df.n.grams.base <- data.frame(text = sapply(data.en_news.corp.clean.small, as.character), stringsAsFactors = F)
+
+
+ts <- Sys.time()
+one.Gram.Token <- NGramTokenizer(df.n.grams.base, Weka_control(min = 1, max = 1))
+te <- Sys.time()
+te - ts
+ts <- Sys.time()
+two.Gram.Token <- NGramTokenizer(df.n.grams.base, Weka_control(min = 2, max = 2))
+te <- Sys.time()
+te - ts
+ts <- Sys.time()
+three.Gram.Token <- NGramTokenizer(df.n.grams.base, Weka_control(min = 3, max = 3))
+te <- Sys.time()
+te - ts
+
+one.Grams <- data.frame(table(one.Gram.Token))
+two.Grams <- data.frame(table(two.Gram.Token))
+three.Grams <- data.frame(table(three.Gram.Token))
+colnames(one.Grams)   <- c("Word", "Frequency") 
+colnames(two.Grams)   <- c("Word", "Frequency") 
+colnames(three.Grams) <- c("Word", "Frequency") 
+
+
 
 
 # Question 1: Some words are more frequent than others - 
@@ -93,6 +125,12 @@ TFV.df.sum %>%
   scale_size_area(max_size = 15) +
   theme_minimal()
 
+
+# Question 2: What are the frequencies of 2-grams and 3-grams in the dataset? 
+
+#
+
+
 # Question 3: How many unique words do you need in a frequency sorted dictionary to cover 
 #             50% of all word instances in the language? 90%? 
 TFV.df.sum %>% 
@@ -115,5 +153,8 @@ TFV.df.sum %>%
   xlab("Number of uinique words (words sorted - occurence)") +
   ylab("Total percentage % of all words covered in documents") +
   ggtitle("Coverage of word instances in the corpus")
+
+
+
 
 
