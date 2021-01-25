@@ -16,6 +16,7 @@ source("./script/sample_lines.R")
 source("./script/import_text.R")
 source("./script/corpus_cleaning.R")
 source("./script/term_freq_vec_df.R")
+source("./script/n_gram_df_build.R")
 
 # Import clean data
 ch.import <- "clean.sample.news" # sample or full data?
@@ -70,31 +71,12 @@ TFV.df.sum <- TFV.df %>%
 
 
 # Build n-grams (multiple words) - we will also check frequencies of n-grams
-data.en_news.corp.clean.small <- data.en_news.corp.clean[1:50000]
-df.n.grams.base <- data.frame(text = sapply(data.en_news.corp.clean.small, as.character), stringsAsFactors = F)
-
-
-ts <- Sys.time()
-one.Gram.Token <- NGramTokenizer(df.n.grams.base, Weka_control(min = 1, max = 1))
-te <- Sys.time()
-te - ts
-ts <- Sys.time()
-two.Gram.Token <- NGramTokenizer(df.n.grams.base, Weka_control(min = 2, max = 2))
-te <- Sys.time()
-te - ts
-ts <- Sys.time()
-three.Gram.Token <- NGramTokenizer(df.n.grams.base, Weka_control(min = 3, max = 3))
-te <- Sys.time()
-te - ts
-
-one.Grams <- data.frame(table(one.Gram.Token))
-two.Grams <- data.frame(table(two.Gram.Token))
-three.Grams <- data.frame(table(three.Gram.Token))
-colnames(one.Grams)   <- c("Word", "Frequency") 
-colnames(two.Grams)   <- c("Word", "Frequency") 
-colnames(three.Grams) <- c("Word", "Frequency") 
-
-
+set.seed(123)
+random_lines <- sample(x = 1:length(data.en_news.corp.clean), size = 50000, replace = F)
+one.Grams.df <- n_gram_df_build(corpus = data.en_news.corp.clean[random_lines], n = 1)
+two.Grams.df <- n_gram_df_build(corpus = data.en_news.corp.clean[random_lines], n = 2)
+three.Grams.df <- n_gram_df_build(corpus = data.en_news.corp.clean[random_lines], n = 3)
+four.Grams.df <- n_gram_df_build(corpus = data.en_news.corp.clean[random_lines], n = 4)
 
 
 # Question 1: Some words are more frequent than others - 
@@ -127,8 +109,45 @@ TFV.df.sum %>%
 
 
 # Question 2: What are the frequencies of 2-grams and 3-grams in the dataset? 
+two.Grams.df %>%
+  arrange(desc(Frequency)) %>% 
+  head(50) %>% 
+  mutate(word = as.character(Word)) %>% 
+  mutate(word = fct_inorder(f = word)) %>% 
+  ggplot(aes(x = word, y = Frequency)) +
+  geom_col(color = "black") +
+  #scale_y_continuous(breaks = seq(0,100000,1000)) +
+  xlab("2-gram word") +
+  ylab("Frequency (2-gram count in documents)") +
+  ggtitle("Top 50 most frequent 2-grams in the corpus") +
+  theme(axis.text.x = element_text(angle = 90))
 
-#
+three.Grams.df %>%
+  arrange(desc(Frequency)) %>% 
+  head(50) %>% 
+  mutate(word = as.character(Word)) %>% 
+  mutate(word = fct_inorder(f = word)) %>% 
+  ggplot(aes(x = word, y = Frequency)) +
+  geom_col(color = "black") +
+  #scale_y_continuous(breaks = seq(0,100000,1000)) +
+  xlab("2-gram word") +
+  ylab("Frequency (3-gram count in documents)") +
+  ggtitle("Top 50 most frequent 3-grams in the corpus") +
+  theme(axis.text.x = element_text(angle = 90))
+
+four.Grams.df %>%
+  arrange(desc(Frequency)) %>% 
+  head(50) %>% 
+  mutate(word = as.character(Word)) %>% 
+  mutate(word = fct_inorder(f = word)) %>% 
+  ggplot(aes(x = word, y = Frequency)) +
+  geom_col(color = "black") +
+  #scale_y_continuous(breaks = seq(0,100000,1000)) +
+  xlab("4-gram word") +
+  ylab("Frequency (4-gram count in documents)") +
+  ggtitle("Top 50 most frequent 4-grams in the corpus") +
+  theme(axis.text.x = element_text(angle = 90))
+
 
 
 # Question 3: How many unique words do you need in a frequency sorted dictionary to cover 
@@ -154,7 +173,4 @@ TFV.df.sum %>%
   ylab("Total percentage % of all words covered in documents") +
   ggtitle("Coverage of word instances in the corpus")
 
-
-
-
-
+save.image(file = "./data/eda.RData")
