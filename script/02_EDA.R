@@ -12,11 +12,11 @@ library(ggplot2)
 library(forcats)
 library(ggwordcloud)
 
-source("./script/sample_lines.R")
-source("./script/import_text.R")
-source("./script/corpus_cleaning.R")
-source("./script/term_freq_vec_df.R")
-source("./script/n_gram_df_build.R")
+source("./script/func_sample_lines.R")
+source("./script/func_import_text.R")
+source("./script/func_corpus_cleaning.R")
+source("./script/func_term_freq_vec_df.R")
+source("./script/func_n_gram_df_build.R")
 
 # Import clean data
 ch.import <- "clean.sample.news" # sample or full data?
@@ -99,12 +99,12 @@ set.seed(135) # randomness in positioning labels in the cloud
 TFV.df.sum %>% 
   mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>% 
   mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>% 
-  filter(rank_word <= 250) %>% 
+  filter(rank_word <= 500) %>% 
   ggplot(aes(label = word, 
-             size = rank_word, 
+             size = frequency, 
              angle = angle1)) +
   geom_text_wordcloud() +
-  scale_size_area(max_size = 15) +
+  scale_size_area(max_size = 25) +
   theme_minimal()
 
 
@@ -122,6 +122,21 @@ two.Grams.df %>%
   ggtitle("Top 50 most frequent 2-grams in the corpus") +
   theme(axis.text.x = element_text(angle = 90))
 
+# Word cloud - bi gram
+set.seed(135) # randomness in positioning labels in the cloud
+two.Grams.df %>% 
+  arrange(desc(Frequency)) %>% 
+  head(250) %>% 
+  mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>% 
+  mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>% 
+  ggplot(aes(label = Word, 
+             size = Frequency, 
+             angle = angle1)) +
+  geom_text_wordcloud() +
+  scale_size_area(max_size = 25) +
+  theme_minimal()
+
+
 three.Grams.df %>%
   arrange(desc(Frequency)) %>% 
   head(50) %>% 
@@ -134,6 +149,22 @@ three.Grams.df %>%
   ylab("Frequency (3-gram count in documents)") +
   ggtitle("Top 50 most frequent 3-grams in the corpus") +
   theme(axis.text.x = element_text(angle = 90))
+
+# Word cloud - tri gram
+set.seed(135) # randomness in positioning labels in the cloud
+three.Grams.df %>% 
+  arrange(desc(Frequency)) %>% 
+  head(150) %>% 
+  mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>% 
+  mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>% 
+  ggplot(aes(label = Word, 
+             size = Frequency, 
+             angle = angle1)) +
+  geom_text_wordcloud() +
+  scale_size_area(max_size = 15) +
+  theme_minimal()
+
+
 
 four.Grams.df %>%
   arrange(desc(Frequency)) %>% 
@@ -148,6 +179,19 @@ four.Grams.df %>%
   ggtitle("Top 50 most frequent 4-grams in the corpus") +
   theme(axis.text.x = element_text(angle = 90))
 
+# Word cloud - four gram
+set.seed(135) # randomness in positioning labels in the cloud
+four.Grams.df %>% 
+  arrange(desc(Frequency)) %>% 
+  head(50) %>% 
+  mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>% 
+  mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>% 
+  ggplot(aes(label = Word, 
+             size = Frequency, 
+             angle = angle1)) +
+  geom_text_wordcloud() +
+  scale_size_area(max_size = 15) +
+  theme_minimal()
 
 
 # Question 3: How many unique words do you need in a frequency sorted dictionary to cover 
@@ -173,4 +217,27 @@ TFV.df.sum %>%
   ylab("Total percentage % of all words covered in documents") +
   ggtitle("Coverage of word instances in the corpus")
 
+TFV.df.sum %>% 
+  ggplot(aes(x = rank_word, y = percent_words_covered)) +
+  geom_area(fill = "gray", color = "black") +
+  geom_hline(yintercept = 0.5, color = "red", size = 1) +
+  geom_point(data = TFV.df.sum %>% 
+               filter(percent_words_covered <= 0.5) %>% 
+               tail(1), aes(x = rank_word, 
+                            y = percent_words_covered), 
+             color = "red", size = 3) +
+  geom_hline(yintercept = 0.9, color = "blue", size = 1) +
+  geom_point(data = TFV.df.sum %>% 
+               filter(percent_words_covered <= 0.9) %>% 
+               tail(1), aes(x = rank_word, 
+                            y = percent_words_covered), 
+             color = "blue", size = 3) +
+  scale_x_continuous(breaks = c(1250, seq(5000,100000,2500))) +
+  scale_y_continuous(breaks = seq(0,1,0.05)) +
+  xlab("Number of uinique words (words sorted - occurence)") +
+  ylab("Total percentage % of all words covered in documents") +
+  ggtitle("Coverage of word instances in the corpus")
+
+
 save.image(file = "./data/eda.RData")
+

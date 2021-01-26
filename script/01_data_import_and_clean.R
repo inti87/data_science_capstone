@@ -11,9 +11,9 @@ library(SnowballC)
 library(stringr)
 library(dplyr)
 
-source("./script/sample_lines.R")
-source("./script/import_text.R")
-source("./script/corpus_cleaning.R")
+source("./script/func_sample_lines.R")
+source("./script/func_import_text.R")
+source("./script/func_corpus_cleaning.R")
 
 # Import data
 

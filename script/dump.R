@@ -72,3 +72,23 @@ words <- names(news.TFV[["75604"]])
 freq <- news.TFV[["75604"]]
 
 cbind(words, freq)
+
+
+
+special_chars <- "’|“|”|‘|\u0091|\u0092|\u0093|\u0094|\u0095|\u0099|★|✭|½|⅔|¾|ø|–|—|…"
+
+
+temp <- TFV.df.sum %>% 
+  mutate(flag0 = str_detect(word, pattern = "[^a-zA-Z0-9]"),
+         flag1 = str_detect(word, pattern = "’t"),
+         flag2 = str_detect(word, pattern = "’(?!t)"),
+         flag3 = str_detect(word, pattern = "’"),
+         flag4 = str_detect(word, pattern = "\u0092"),
+         flag5 = str_detect(word, pattern = "“"),
+         flag6 = str_detect(word, pattern = "”"),
+         flag7 = str_detect(word, pattern = "ø"),
+         flag.ultimatum = str_detect(word, pattern = special_chars),
+         word_ = str_replace_all(string = word, pattern = special_chars, replacement = " "),
+         word___ = str_replace_all(string = word, pattern = "[^a-zA-Z0-9]", replacement = " "),
+         test = case_when(word == word___ ~ T,
+                          word != word___ ~ F))
