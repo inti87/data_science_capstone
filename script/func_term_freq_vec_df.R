@@ -116,6 +116,7 @@ term_freq_vec_df <- function(TFV,
       TFV.batch.df.all <- rbind(TFV.batch.df.all, finalMatrix) 
     }
   }
+  
+  return(TFV.batch.df.all)
 }
 
-return(TFV.batch.df.all)

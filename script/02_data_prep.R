@@ -1,4 +1,4 @@
-# Dta prep
+# Data prep
 
 # - import clean corpus (full or samle data)
 # - build Term-Document Matrix - TDM
@@ -11,7 +11,12 @@
 # author: Marko Intihar
 
 rm(list =ls())
+gc()
 graphics.off()
+
+# rJava - increase memory size allocated to rJava library
+options(java.parameters = "-Xmx10240m") # 10GB allocated
+library(rJava)
 
 # procedure time (start)
 st <- Sys.time() 
@@ -31,14 +36,16 @@ load_lib(libraries)
 
 
 # Select which type of import: full or sample data
-ch.import <- "sample" # "sample" | "full"
+ch.import <- "full" # "sample" | "full"
 
 
-# a) news corpus
+#-----------------------#
+#    a) news corpus     #
+#-----------------------#
 
 if(ch.import == "sample"){
   load("./data/data_proc/news_corpus_clean_sample.RData")
-}else if(ch.import == "clean.news"){
+}else if(ch.import == "full"){
   load("./data/data_proc/news_corpus_clean_full.RData")
 }
 
@@ -58,72 +65,105 @@ news.TFV.df.sum <- term_freq_vec_freq_sum(news.TFV.df)
 
 # Build n-grams (multiple words) - we will also check frequencies of n-grams
 set.seed(123)
-random_lines <- sample(x = 1:length(data.en_news.corp.clean), size = 10000, replace = F)
+news.uni.Grams.df   <- n_gram_df_build(corpus = data.en_news.corp.clean, n = 1, batch.mode = TRUE, batch.size = 10000)
+news.bi.Grams.df    <- n_gram_df_build(corpus = data.en_news.corp.clean, n = 2, batch.mode = TRUE, batch.size = 10000)
+news.three.Grams.df <- n_gram_df_build(corpus = data.en_news.corp.clean, n = 3, batch.mode = TRUE, batch.size = 10000)
+news.four.Grams.df  <- n_gram_df_build(corpus = data.en_news.corp.clean, n = 4, batch.mode = TRUE, batch.size = 10000)
 
-# news
-news.one.Grams.df   <- n_gram_df_build(corpus = data.en_news.corp.clean[random_lines], n = 1)
-news.two.Grams.df   <- n_gram_df_build(corpus = data.en_news.corp.clean[random_lines], n = 2)
-news.three.Grams.df <- n_gram_df_build(corpus = data.en_news.corp.clean[random_lines], n = 3)
-news.four.Grams.df  <- n_gram_df_build(corpus = data.en_news.corp.clean[random_lines], n = 4)
+# Save data
+save(news.TFV.df.sum, news.uni.Grams.df, 
+     news.bi.Grams.df, news.three.Grams.df, 
+     news.four.Grams.df,    
+     file = "./data/data_proc/02_data_prep_news_only_selected_objects.RData")
+
+save.image(file = "./data/data_proc/02_data_prep_news_all_objects.RData")
+
+rm(list =ls())
+gc()
 
 
+#-----------------------#
+#  b) twitter corpus    #
+#-----------------------#
 
+if(ch.import == "sample"){
+  load("./data/data_proc/twit_corpus_clean_sample.RData")
+}else if(ch.import == "full"){
+  load("./data/data_proc/twit_corpus_clean_full.RData")
+}
 
-# b) twitter corpus
-
-
-# c) blogs corpus
-
-
-
-# Build Term-Document Matrix
+## Build Term-Document Matrix
 set.seed(11235)
-news.TDM <- TermDocumentMatrix(data.en_news.corp.clean)
 twit.TDM <- TermDocumentMatrix(data.en_twitter.corp.clean)
-blog.TDM <- TermDocumentMatrix(data.en_blogs.corp.clean)
-
-
 
 ## Build term frequency vector & term frequency vector stored as data frame
-
-### TFV vector-list
-news.TFV <- sapply(data.en_news.corp.clean, termFreq) 
 twit.TFV <- sapply(data.en_twitter.corp.clean, termFreq) 
-blog.TFV <- sapply(data.en_blogs.corp.clean, termFreq) 
-
-### TFV vector-data frame
-news.TFV.df <- term_freq_vec_df(TFV = news.TFV, parallel = TRUE) 
-twit.TFV.df <- term_freq_vec_df(TFV = twit.TFV, parallel = TRUE) 
-blog.TFV.df <- term_freq_vec_df(TFV = blog.TFV, parallel = TRUE) 
-
-# save.image("./data/TFV_built.RData")
-# load("./data/TFV_built.RData")
+twit.TFV.df <- term_freq_vec_df(TFV = twit.TFV, 
+                                parallel = TRUE, 
+                                batch.mode = TRUE, 
+                                batch.size = 25000) 
 
 ## Term frequency vector word level summarized
-news.TFV.df.sum <- term_freq_vec_freq_sum(news.TFV.df)
 twit.TFV.df.sum <- term_freq_vec_freq_sum(twit.TFV.df)
-blog.TFV.df.sum <- term_freq_vec_freq_sum(blog.TFV.df)
-
 
 # Build n-grams (multiple words) - we will also check frequencies of n-grams
 set.seed(123)
-random_lines <- sample(x = 1:length(data.en_news.corp.clean), size = 10000, replace = F)
+twit.uni.Grams.df   <- n_gram_df_build(corpus = data.en_twitter.corp.clean, n = 1, batch.mode = TRUE, batch.size = 10000)
+twit.bi.Grams.df    <- n_gram_df_build(corpus = data.en_twitter.corp.clean, n = 2, batch.mode = TRUE, batch.size = 10000)
+twit.three.Grams.df <- n_gram_df_build(corpus = data.en_twitter.corp.clean, n = 3, batch.mode = TRUE, batch.size = 10000)
+twit.four.Grams.df  <- n_gram_df_build(corpus = data.en_twitter.corp.clean, n = 4, batch.mode = TRUE, batch.size = 10000)
 
-# news
-news.one.Grams.df   <- n_gram_df_build(corpus = data.en_news.corp.clean[random_lines], n = 1)
-news.two.Grams.df   <- n_gram_df_build(corpus = data.en_news.corp.clean[random_lines], n = 2)
-news.three.Grams.df <- n_gram_df_build(corpus = data.en_news.corp.clean[random_lines], n = 3)
-news.four.Grams.df  <- n_gram_df_build(corpus = data.en_news.corp.clean[random_lines], n = 4)
+# Save data
+save(twit.TFV.df.sum, twit.uni.Grams.df, 
+     twit.bi.Grams.df, twit.three.Grams.df, 
+     twit.four.Grams.df,    
+     file = "./data/data_proc/02_data_prep_twit_only_selected_objects.RData")
 
-# twit
-twit.one.Grams.df   <- n_gram_df_build(corpus = data.en_twitter.corp.clean[random_lines], n = 1)
-twit.two.Grams.df   <- n_gram_df_build(corpus = data.en_twitter.corp.clean[random_lines], n = 2)
-twit.three.Grams.df <- n_gram_df_build(corpus = data.en_twitter.corp.clean[random_lines], n = 3)
-twit.four.Grams.df  <- n_gram_df_build(corpus = data.en_twitter.corp.clean[random_lines], n = 4)
+save.image(file = "./data/data_proc/02_data_prep_twit_all_objects.RData")
 
-# blog
-blog.one.Grams.df   <- n_gram_df_build(corpus = data.en_blogs.corp.clean[random_lines], n = 1)
-blog.two.Grams.df   <- n_gram_df_build(corpus = data.en_blogs.corp.clean[random_lines], n = 2)
-blog.three.Grams.df <- n_gram_df_build(corpus = data.en_blogs.corp.clean[random_lines], n = 3)
-blog.four.Grams.df  <- n_gram_df_build(corpus = data.en_blogs.corp.clean[random_lines], n = 4)
+rm(list =ls())
+gc()
+
+
+#-----------------------#
+#    c) blogs corpus    #
+#-----------------------#
+
+if(ch.import == "sample"){
+  load("./data/data_proc/blog_corpus_clean_sample.RData")
+}else if(ch.import == "full"){
+  load("./data/data_proc/blog_corpus_clean_full.RData")
+}
+
+## Build Term-Document Matrix
+set.seed(11235)
+blog.TDM <- TermDocumentMatrix(data.en_blogs.corp.clean)
+
+## Build term frequency vector & term frequency vector stored as data frame
+blog.TFV <- sapply(data.en_blogs.corp.clean, termFreq) 
+blog.TFV.df <- term_freq_vec_df(TFV = blog.TFV, 
+                                parallel = TRUE, 
+                                batch.mode = TRUE, 
+                                batch.size = 25000) 
+
+## Term frequency vector word level summarized
+blog.TFV.df.sum <- term_freq_vec_freq_sum(blog.TFV.df)
+
+# Build n-grams (multiple words) - we will also check frequencies of n-grams
+set.seed(123)
+blog.uni.Grams.df   <- n_gram_df_build(corpus = data.en_blogs.corp.clean, n = 1, batch.mode = TRUE, batch.size = 10000)
+blog.bi.Grams.df    <- n_gram_df_build(corpus = data.en_blogs.corp.clean, n = 2, batch.mode = TRUE, batch.size = 10000)
+blog.three.Grams.df <- n_gram_df_build(corpus = data.en_blogs.corp.clean, n = 3, batch.mode = TRUE, batch.size = 10000)
+blog.four.Grams.df  <- n_gram_df_build(corpus = data.en_blogs.corp.clean, n = 4, batch.mode = TRUE, batch.size = 10000)
+
+# Save data
+save(blog.TFV.df.sum, blog.uni.Grams.df, 
+     blog.bi.Grams.df, blog.three.Grams.df, 
+     blog.four.Grams.df,    
+     file = "./data/data_proc/02_data_prep_blog_only_selected_objects.RData")
+
+save.image(file = "./data/data_proc/02_data_prep_blog_all_objects.RData")
+
+rm(list =ls())
+gc()
 
