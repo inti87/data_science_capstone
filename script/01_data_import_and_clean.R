@@ -1,19 +1,29 @@
 # Import & clean data
 
+# - import raw corpus text data (news, twitter, blogs)
+# - create Vcorpus
+# - clean corpus
+# - sample data
+# - save image (full data, sampled data)
+
+# author: Marko Intihar
+
 rm(list =ls())
 graphics.off()
 
 # procedure time (start)
 st <- Sys.time() 
 
-library(tm)
-library(SnowballC)
-library(stringr)
-library(dplyr)
-
+# Load functions
 source("./script/func_sample_lines.R")
 source("./script/func_import_text.R")
 source("./script/func_corpus_cleaning.R")
+source("./script/func_load_libraries.R")
+
+# Load libraries
+libraries <- c("tm", "SnowballC", "stringr", "dplyr")
+load_lib(libraries)
+
 
 # Import data
 
@@ -21,23 +31,16 @@ source("./script/func_corpus_cleaning.R")
 
 list.files("./data/Coursera-SwiftKey/final/en_US/")
 
-# specifies the exact folder where my text file(s) is for analysis with tm.
-# corpus.en_US <- Corpus(DirSource("./data/Coursera-SwiftKey/final/en_US/"), 
-#                        readerControl = list(language="en"))
-# 
-# summary(corpus.en_US)  #check what went in
-
-#loading a text file from local computer
+# loading a text file from local computer
 data.en_news.raw    <- import_text(path = "./data/Coursera-SwiftKey/final/en_US/en_US.news.txt")
 data.en_blogs.raw   <- import_text(path = "./data/Coursera-SwiftKey/final/en_US/en_US.blogs.txt")
 data.en_twitter.raw <- import_text(path = "./data/Coursera-SwiftKey/final/en_US/en_US.twitter.txt")
 
-
-#Load data as corpus
-#VectorSource() creates character vectors
+# creates character vectors
 data.en_news.corp.raw    <- VCorpus(VectorSource(data.en_news.raw))
 data.en_blogs.corp.raw   <- VCorpus(VectorSource(data.en_blogs.raw))
 data.en_twitter.corp.raw <- VCorpus(VectorSource(data.en_twitter.raw))
+
 
 ## Other sources
 
@@ -57,23 +60,22 @@ data.en_twitter.corp.clean <- clean_corpus(corpus = data.en_twitter.corp.raw)
 et <- Sys.time() 
 exec.time <- et - st; print(exec.time)
 
-# Save clean data all
-save.image(file = "./data/clean_data.RData")
 
-# Save clean data only news (just clean corpus)
-save(data.en_news.corp.clean, file = "./data/news_corpus_clean.RData")
+# Save image (data)
 
+## corpus full (separate by file)
+save(data.en_news.corp.clean,    file = "./data/data_proc/news_corpus_clean_full.RData")
+save(data.en_twitter.corp.clean, file = "./data/data_proc/twit_corpus_clean_full.RData")
+save(data.en_blogs.corp.clean,   file = "./data/data_proc/blog_corpus_clean_full.RData")
 
-# Sample data & save sampled data
+## corpus sample (separate by file)
+
+### sample clean data
+set.seed(123)
 data.en_news.corp.clean    <- sample_lines(text = data.en_news.corp.clean,    type = "number", number = 100000)
 data.en_blogs.corp.clean   <- sample_lines(text = data.en_blogs.corp.clean,   type = "number", number = 100000)
 data.en_twitter.corp.clean <- sample_lines(text = data.en_twitter.corp.clean, type = "number", number = 100000)
 
-save(data.en_news.corp.clean, 
-     data.en_blogs.corp.clean, 
-     data.en_twitter.corp.clean, 
-     file = "./data/clean_sample_data.RData")
-
-
-save(data.en_news.corp.clean, 
-     file = "./data/news_corpus_clean_sample.RData")
+save(data.en_news.corp.clean,    file = "./data/data_proc/news_corpus_clean_sample.RData")
+save(data.en_twitter.corp.clean, file = "./data/data_proc/twit_corpus_clean_sample.RData")
+save(data.en_blogs.corp.clean,   file = "./data/data_proc/blog_corpus_clean_sample.RData")
