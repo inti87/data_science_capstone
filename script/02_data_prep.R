@@ -18,8 +18,6 @@ graphics.off()
 options(java.parameters = "-Xmx10240m") # 10GB allocated
 library(rJava)
 
-# procedure time (start)
-st <- Sys.time() 
 
 # Load functions
 source("./script/func_sample_lines.R")
