@@ -64,13 +64,14 @@ term_freq_vec_df <- function(TFV,
         TFV.batch.df <- TFV.batch.df %>% 
           mutate(frequency = as.numeric(frequency))
         
-        et <- Sys.time()
+               
+        # store to main batch data frame
+        TFV.batch.df.all <- rbind(TFV.batch.df.all, TFV.batch.df) 
+		
+		et <- Sys.time()
         print(".......................")
         print(paste("batch", i, sep = " "))
         print(et - st)
-        
-        # store to main batch data frame
-        TFV.batch.df.all <- rbind(TFV.batch.df.all, TFV.batch.df) 
         
     }else if(parallel){ # parallel core processing
       
@@ -106,14 +107,14 @@ term_freq_vec_df <- function(TFV,
       
       #stop cluster
       stopCluster(cl)
-      
-      et <- Sys.time()
+           
+      # store to main batch data frame
+      TFV.batch.df.all <- rbind(TFV.batch.df.all, finalMatrix) 
+	  
+	  et <- Sys.time()
       print(".......................")
       print(paste("batch", i, sep = " "))
       print(et - st)
-      
-      # store to main batch data frame
-      TFV.batch.df.all <- rbind(TFV.batch.df.all, finalMatrix) 
     }
   }
   

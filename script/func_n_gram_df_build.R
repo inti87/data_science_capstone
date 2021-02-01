@@ -48,12 +48,13 @@ n_gram_df_build <- function(corpus,
     n.Grams.batch <- data.frame(table(n.Gram.Token.batch))
     colnames(n.Grams.batch) <- c("Word", "Frequency") 
     
-    print(".......................")
+       
+    # store to main batch data frame
+    n.Grams.all <- rbind(n.Grams.all, n.Grams.batch)
+
+	print(".......................")
     print(paste("batch", i, sep = " "))
     print(Sys.time() - ts)
-    
-    # store to main batch data frame
-    n.Grams.all <- rbind(n.Grams.all, n.Grams.batch) 
     
   }
 

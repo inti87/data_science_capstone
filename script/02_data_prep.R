@@ -33,13 +33,12 @@ libraries <- c("tm", "RWeka", "stringr", "dplyr", "tidyr", "ggplot2", "forcats",
 load_lib(libraries)
 
 
-# Select which type of import: full or sample data
-ch.import <- "full" # "sample" | "full"
-
-
 #-----------------------#
 #    a) news corpus     #
 #-----------------------#
+
+# Select which type of import: full or sample data
+ch.import <- "full" # "sample" | "full"
 
 if(ch.import == "sample"){
   load("./data/data_proc/news_corpus_clean_sample.RData")
@@ -76,13 +75,14 @@ save(news.TFV.df.sum, news.uni.Grams.df,
 
 save.image(file = "./data/data_proc/02_data_prep_news_all_objects.RData")
 
-rm(list =ls())
-gc()
+# rm(list =ls())
+# gc()
 
 
 #-----------------------#
 #  b) twitter corpus    #
 #-----------------------#
+
 
 if(ch.import == "sample"){
   load("./data/data_proc/twit_corpus_clean_sample.RData")
@@ -119,13 +119,16 @@ save(twit.TFV.df.sum, twit.uni.Grams.df,
 
 save.image(file = "./data/data_proc/02_data_prep_twit_all_objects.RData")
 
-rm(list =ls())
-gc()
+# rm(list =ls())
+# gc()
 
 
 #-----------------------#
 #    c) blogs corpus    #
 #-----------------------#
+
+# Select which type of import: full or sample data
+ch.import <- "full" # "sample" | "full"
 
 if(ch.import == "sample"){
   load("./data/data_proc/blog_corpus_clean_sample.RData")
