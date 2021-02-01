@@ -38,7 +38,7 @@ load_lib(libraries)
 #-----------------------#
 
 # Select which type of import: full or sample data
-ch.import <- "full" # "sample" | "full"
+ch.import <- "sample" # "sample" | "full"
 
 if(ch.import == "sample"){
   load("./data/data_proc/news_corpus_clean_sample.RData")
@@ -127,8 +127,6 @@ save.image(file = "./data/data_proc/02_data_prep_twit_all_objects.RData")
 #    c) blogs corpus    #
 #-----------------------#
 
-# Select which type of import: full or sample data
-ch.import <- "full" # "sample" | "full"
 
 if(ch.import == "sample"){
   load("./data/data_proc/blog_corpus_clean_sample.RData")

@@ -79,3 +79,6 @@ data.en_twitter.corp.clean <- sample_lines(text = data.en_twitter.corp.clean, ty
 save(data.en_news.corp.clean,    file = "./data/data_proc/news_corpus_clean_sample.RData")
 save(data.en_twitter.corp.clean, file = "./data/data_proc/twit_corpus_clean_sample.RData")
 save(data.en_blogs.corp.clean,   file = "./data/data_proc/blog_corpus_clean_sample.RData")
+
+# procedure time
+print(Sys.time() - st)

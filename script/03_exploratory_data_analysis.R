@@ -25,17 +25,17 @@ libraries <- c("tm", "RWeka", "stringr", "dplyr", "tidyr", "ggplot2", "forcats",
 load_lib(libraries)
 
 # Import data (from prep procedure step)
-load("./data/data_proc/02_data_prep_news_only_selected_objects.RData")
-load("./data/data_proc/02_data_prep_twit_only_selected_objects.RData")
-load("./data/data_proc/02_data_prep_blog_only_selected_objects.RData")
+load("./data/data_proc/strange_chars_not_removed/02_data_prep_news_all_objects.RData")
+load("./data/data_proc/strange_chars_not_removed/02_data_prep_twit_all_objects.RData")
+load("./data/data_proc/strange_chars_not_removed/02_data_prep_blog_all_objects.RData")
 
 
 # EDA
 
 ## Check summaries - size of corpus
-# length(data.en_news.corp.clean)
-# length(data.en_blogs.corp.clean)
-# length(data.en_twitter.corp.clean)
+length(data.en_news.corp.clean)
+length(data.en_blogs.corp.clean)
+length(data.en_twitter.corp.clean)
 
 ## Questions to answer ???
 

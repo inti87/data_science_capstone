@@ -92,3 +92,55 @@ temp <- TFV.df.sum %>%
          word___ = str_replace_all(string = word, pattern = "[^a-zA-Z0-9]", replacement = " "),
          test = case_when(word == word___ ~ T,
                           word != word___ ~ F))
+
+
+
+
+
+
+# text cleaning
+library(tidyverse)
+load("./data/data_proc/strange_chars_not_removed/02_data_prep_news_only_selected_objects.RData")
+
+news.uni.Grams.df_ <- news.uni.Grams.df %>% 
+  # filter flag - unicode chars
+  mutate(filter_out_1 = str_detect(Word, pattern = "<*>")) %>% 
+  # word cleaning
+  mutate(flag0 = str_detect(Word, pattern = "[^a-zA-Z0-9]"),
+         flag1 = str_detect(Word, pattern = "[[:punct:]]"),
+         flag2 = str_detect(Word, pattern = "[^[:alnum:]]"),
+         word = str_replace_all(Word, pattern = "[[:punct:]]", replacement = ""),
+         word = str_replace_all(Word, pattern = "[^[:alnum:]]", replacement = "")) #%>% 
+  # remove empty chars (after clenaing)
+  mutate(nchars = nchar(word)) %>% 
+  # filtering
+  filter(!filter_out_1) %>% 
+  filter(nchars > 0)
+   
+
+
+news.bi.Grams.df_ <- news.bi.Grams.df %>% 
+  # filter flag - unicode chars
+  mutate(filter_out_1 = str_detect(Word, pattern = "<*>")) %>% 
+  # word cleaning
+  mutate(flag0 = str_detect(Word, pattern = "[^a-zA-Z0-9]"),
+         flag1 = str_detect(Word, pattern = "[[:punct:]]"),
+         flag2 = str_detect(Word, pattern = "[^[:alnum:]]"),
+         word1 = str_replace_all(Word, pattern = "[[:punct:]]", replacement = ""),
+         word2 = str_replace_all(Word, pattern = "[^[:alnum:]]", replacement = "")) #%>% 
+
+
+
+  # remove empty chars (after clenaing)
+  mutate(nchars = nchar(word)) %>% 
+  # filtering
+  filter(!filter_out_1) %>% 
+  filter(nchars > 0)
+
+
+
+
+
+
+
+
