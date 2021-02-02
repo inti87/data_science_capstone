@@ -10,13 +10,14 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, fig.width = 10, fig.height =
                       warning = FALSE)
 ```
 
-```{r libraries}
+```{r libraries, echo=FALSE}
 # Load libraries
 library(dplyr)
 library(tidyr) 
 library(ggplot2) 
 library(forcats) 
 library(ggwordcloud)
+library(kableExtra)
 ```
 
 
@@ -25,6 +26,7 @@ library(ggwordcloud)
 load("02_data_prep_news_all_objects.RData")
 load("02_data_prep_twit_all_objects.RData")
 load("02_data_prep_blog_all_objects.RData")
+load("table_summaries.RData")
 ```
 
 
@@ -98,7 +100,18 @@ To build different *n-grams* we used R's library *RWeka*, which provides a funct
 
 # Exploratory Data Analysis
 
-Exploratory data analysis or EDA was applied on the sampled data. Since generated samples are quite big, we believe that applying exploration on samples should not be an issue. In the EDA step we were trying to answer few given questions. 
+Exploratory data analysis or EDA was applied on the sampled data. Since generated samples are quite big, we believe that applying exploration on samples should not be an issue. In the EDA step we were trying to answer few given questions.
+
+Let's first do some basic counts regarding each corpus.
+
+```{r summaries}
+table.summaries %>%
+  kbl() %>%
+  kable_styling()
+```
+
+Object size is reported in MB (raw corpus before imported into R). Line count, word count and character counts are reported for corpus after being cleaned.
+
 
 ### Word frequencies
 
@@ -111,9 +124,9 @@ Here we are using word frequencies and trying to show the most frequent words fo
 So the distribution of top 50 words in the **news corpus** is:
 
 ```{r newstop50_bar}
-news.TFV.df.sum %>% 
-  filter(rank_word <= 50) %>% 
-  mutate(word = fct_inorder(f = word)) %>% 
+news.TFV.df.sum %>%
+  filter(rank_word <= 50) %>%
+  mutate(word = fct_inorder(f = word)) %>%
   ggplot(aes(x = word, y = frequency)) +
   geom_col(color = "black") +
   scale_y_continuous(breaks = seq(0,25000,2500)) +
@@ -126,12 +139,12 @@ Also we can create a **word cloud** for news corpus showing top 100 words (font 
 
 ```{r news_wordclund}
 set.seed(135) # randomness in positioning labels in the cloud
-news.TFV.df.sum %>% 
-  mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>% 
-  mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>% 
-  filter(rank_word <= 100) %>% 
-  ggplot(aes(label = word, 
-             size = frequency, 
+news.TFV.df.sum %>%
+  mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>%
+  mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>%
+  filter(rank_word <= 100) %>%
+  ggplot(aes(label = word,
+             size = frequency,
              angle = angle1)) +
   geom_text_wordcloud() +
   scale_size_area(max_size = 25) +
@@ -144,9 +157,9 @@ We can see that in the news corpus the top most three frequent words are: "said"
 Now lets show the distribution of top 50 words in the **twitter corpus**:
 
 ```{r twittop50_bar}
-twit.TFV.df.sum %>% 
-  filter(rank_word <= 50) %>% 
-  mutate(word = fct_inorder(f = word)) %>% 
+twit.TFV.df.sum %>%
+  filter(rank_word <= 50) %>%
+  mutate(word = fct_inorder(f = word)) %>%
   ggplot(aes(x = word, y = frequency)) +
   geom_col(color = "black") +
   scale_y_continuous(breaks = seq(0,10000,500)) +
@@ -161,12 +174,12 @@ And word cloud for top 100 words:
 
 ```{r twit_wordclund}
 set.seed(135) # randomness in positioning labels in the cloud
-twit.TFV.df.sum %>% 
-  mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>% 
-  mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>% 
-  filter(rank_word <= 100) %>% 
-  ggplot(aes(label = word, 
-             size = frequency, 
+twit.TFV.df.sum %>%
+  mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>%
+  mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>%
+  filter(rank_word <= 100) %>%
+  ggplot(aes(label = word,
+             size = frequency,
              angle = angle1)) +
   geom_text_wordcloud() +
   scale_size_area(max_size = 15) +
@@ -179,9 +192,9 @@ In the twitter corpus the top most three frequent words are: "just", "get", "lik
 Now for the **blogs corpus**:
 
 ```{r blogtop50_bar}
-blog.TFV.df.sum %>% 
-  filter(rank_word <= 50) %>% 
-  mutate(word = fct_inorder(f = word)) %>% 
+blog.TFV.df.sum %>%
+  filter(rank_word <= 50) %>%
+  mutate(word = fct_inorder(f = word)) %>%
   ggplot(aes(x = word, y = frequency)) +
   geom_col(color = "black") +
   scale_y_continuous(breaks = seq(0,20000,2500)) +
@@ -194,12 +207,12 @@ blog.TFV.df.sum %>%
 
 ```{r blogs_wordclund}
 set.seed(135) # randomness in positioning labels in the cloud
-blog.TFV.df.sum %>% 
-  mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>% 
-  mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>% 
-  filter(rank_word <= 100) %>% 
-  ggplot(aes(label = word, 
-             size = frequency, 
+blog.TFV.df.sum %>%
+  mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>%
+  mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>%
+  filter(rank_word <= 100) %>%
+  ggplot(aes(label = word,
+             size = frequency,
              angle = angle1)) +
   geom_text_wordcloud() +
   scale_size_area(max_size = 15) +
@@ -220,10 +233,10 @@ Firs lets draw a distribution of word frequencies for **bi-grams** (all three co
 ```{r bigram_news_bar}
 # news
 news.bi.Grams.df %>%
-  arrange(desc(Frequency)) %>% 
-  head(50) %>% 
-  mutate(word = as.character(Word)) %>% 
-  mutate(word = fct_inorder(f = word)) %>% 
+  arrange(desc(Frequency)) %>%
+  head(50) %>%
+  mutate(word = as.character(Word)) %>%
+  mutate(word = fct_inorder(f = word)) %>%
   ggplot(aes(x = word, y = Frequency)) +
   geom_col(color = "black") +
   scale_y_continuous(breaks = seq(0,2000,250)) +
@@ -235,10 +248,10 @@ news.bi.Grams.df %>%
 
 ```{r bigram_twit_bar}
 twit.bi.Grams.df %>%
-  arrange(desc(Frequency)) %>% 
-  head(50) %>% 
-  mutate(word = as.character(Word)) %>% 
-  mutate(word = fct_inorder(f = word)) %>% 
+  arrange(desc(Frequency)) %>%
+  head(50) %>%
+  mutate(word = as.character(Word)) %>%
+  mutate(word = fct_inorder(f = word)) %>%
   ggplot(aes(x = word, y = Frequency)) +
   geom_col(color = "black") +
   scale_y_continuous(breaks = seq(0,1000,100)) +
@@ -251,10 +264,10 @@ twit.bi.Grams.df %>%
 ```{r bigram_blog_bar}
 # blogs
 blog.bi.Grams.df %>%
-  arrange(desc(Frequency)) %>% 
-  head(50) %>% 
-  mutate(word = as.character(Word)) %>% 
-  mutate(word = fct_inorder(f = word)) %>% 
+  arrange(desc(Frequency)) %>%
+  head(50) %>%
+  mutate(word = as.character(Word)) %>%
+  mutate(word = fct_inorder(f = word)) %>%
   ggplot(aes(x = word, y = Frequency)) +
   geom_col(color = "black") +
   scale_y_continuous(breaks = seq(0,1000,100)) +
@@ -268,13 +281,13 @@ Also we can draw word cloud (only bi-gram from news drawn):
 
 ```{r bigram_news_cloud}
 set.seed(135) # randomness in positioning labels in the cloud
-news.bi.Grams.df %>% 
-  arrange(desc(Frequency)) %>% 
-  head(50) %>% 
-  mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>% 
-  mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>% 
-  ggplot(aes(label = Word, 
-             size = Frequency, 
+news.bi.Grams.df %>%
+  arrange(desc(Frequency)) %>%
+  head(50) %>%
+  mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>%
+  mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>%
+  ggplot(aes(label = Word,
+             size = Frequency,
              angle = angle1)) +
   geom_text_wordcloud() +
   scale_size_area(max_size = 20) +
@@ -287,10 +300,10 @@ The same can be applied for three-grams:
 ```{r threegram_news_bar}
 # news
 news.three.Grams.df %>%
-  arrange(desc(Frequency)) %>% 
-  head(50) %>% 
-  mutate(word = as.character(Word)) %>% 
-  mutate(word = fct_inorder(f = word)) %>% 
+  arrange(desc(Frequency)) %>%
+  head(50) %>%
+  mutate(word = as.character(Word)) %>%
+  mutate(word = fct_inorder(f = word)) %>%
   ggplot(aes(x = word, y = Frequency)) +
   geom_col(color = "black") +
   scale_y_continuous(breaks = seq(0,1000,10)) +
@@ -303,10 +316,10 @@ news.three.Grams.df %>%
 ```{r threegram_twit_bar}
 # twitter
 twit.three.Grams.df %>%
-  arrange(desc(Frequency)) %>% 
-  head(50) %>% 
-  mutate(word = as.character(Word)) %>% 
-  mutate(word = fct_inorder(f = word)) %>% 
+  arrange(desc(Frequency)) %>%
+  head(50) %>%
+  mutate(word = as.character(Word)) %>%
+  mutate(word = fct_inorder(f = word)) %>%
   ggplot(aes(x = word, y = Frequency)) +
   geom_col(color = "black") +
   scale_y_continuous(breaks = seq(0,1000,10)) +
@@ -319,10 +332,10 @@ twit.three.Grams.df %>%
 ```{r threegram_blog_bar}
 # blogs
 blog.three.Grams.df %>%
-  arrange(desc(Frequency)) %>% 
-  head(50) %>% 
-  mutate(word = as.character(Word)) %>% 
-  mutate(word = fct_inorder(f = word)) %>% 
+  arrange(desc(Frequency)) %>%
+  head(50) %>%
+  mutate(word = as.character(Word)) %>%
+  mutate(word = fct_inorder(f = word)) %>%
   ggplot(aes(x = word, y = Frequency)) +
   geom_col(color = "black") +
   scale_y_continuous(breaks = seq(0,100,10)) +
@@ -337,13 +350,13 @@ News three-gram word cloud:
 
 ```{r threegram_news_cloud}
 set.seed(135) # randomness in positioning labels in the cloud
-news.three.Grams.df %>% 
-  arrange(desc(Frequency)) %>% 
-  head(50) %>% 
-  mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>% 
-  mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>% 
-  ggplot(aes(label = Word, 
-             size = Frequency, 
+news.three.Grams.df %>%
+  arrange(desc(Frequency)) %>%
+  head(50) %>%
+  mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>%
+  mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>%
+  ggplot(aes(label = Word,
+             size = Frequency,
              angle = angle1)) +
   geom_text_wordcloud() +
   scale_size_area(max_size = 10) +
@@ -351,12 +364,176 @@ news.three.Grams.df %>%
 ```
 
 
+An finally four-grams:
+
+
+```{r fourgram_news_bar}
+# news
+news.four.Grams.df %>%
+  arrange(desc(Frequency)) %>%
+  head(50) %>%
+  mutate(word = as.character(Word)) %>%
+  mutate(word = fct_inorder(f = word)) %>%
+  ggplot(aes(x = word, y = Frequency)) +
+  geom_col(color = "black") +
+  scale_y_continuous(breaks = seq(0,100,2)) +
+  xlab("4-gram word") +
+  ylab("Frequency (4-gram count in documents)") +
+  ggtitle("Top 50 most frequent 4-grams in the corpus (news)") +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+```{r fourgram_twit_bar}
+# twitter
+twit.four.Grams.df %>%
+  arrange(desc(Frequency)) %>%
+  head(50) %>%
+  mutate(word = as.character(Word)) %>%
+  mutate(word = fct_inorder(f = word)) %>%
+  ggplot(aes(x = word, y = Frequency)) +
+  geom_col(color = "black") +
+  scale_y_continuous(breaks = seq(0,100,1)) +
+  xlab("4-gram word") +
+  ylab("Frequency (4-gram count in documents)") +
+  ggtitle("Top 50 most frequent 4-grams in the corpus (twitter)") +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+```{r fourgram_blog_bar}
+# blogs
+blog.four.Grams.df %>%
+  arrange(desc(Frequency)) %>%
+  head(50) %>%
+  mutate(word = as.character(Word)) %>%
+  mutate(word = fct_inorder(f = word)) %>%
+  ggplot(aes(x = word, y = Frequency)) +
+  geom_col(color = "black") +
+  scale_y_continuous(breaks = seq(0,100,2)) +
+  xlab("4-gram word") +
+  ylab("Frequency (4-gram count in documents)") +
+  ggtitle("Top 50 most frequent 4-grams in the corpus (twitter)") +
+  theme(axis.text.x = element_text(angle = 90))
+
+```
+
+
+News four-gram word cloud:
+
+```{r fourgram_news_cloud}
+set.seed(135) # randomness in positioning labels in the cloud
+news.four.Grams.df %>%
+  arrange(desc(Frequency)) %>%
+  head(25) %>%
+  mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>%
+  mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>%
+  ggplot(aes(label = Word,
+             size = Frequency,
+             angle = angle1)) +
+  geom_text_wordcloud() +
+  scale_size_area(max_size = 10) +
+  theme_minimal()
+```
+
+
+
 ### Word coverage
 
+In the last part of data exploration we are trying to find an answer for the question:
+
+*"How many unique words do you need in a frequency sorted dictionary to cover 50% of all word instances in the language?"*
+
+The idea here is to observe unique words and calculate word coverage the percentage of all words in the text covered just by a smaller portion of most frequent unique words. So we have created a plot showing a count of unique words (on x-axis) and percentage of all words in the text covered (on y-axis).
+
+So if we draw the plot for **news corpus** we get:
+
+```{r news_wordcoverage}
+news.TFV.df.sum %>%
+  ggplot(aes(x = rank_word, y = percent_words_covered)) +
+  geom_area(fill = "gray61", color = "black", alpha = 0.3) +
+  geom_hline(yintercept = 0.5, color = "red", size = 1) +
+  geom_point(data = news.TFV.df.sum %>%
+               filter(percent_words_covered <= 0.5) %>%
+               tail(1), aes(x = rank_word,
+                            y = percent_words_covered),
+             color = "red", size = 3) +
+  geom_hline(yintercept = 0.9, color = "blue", size = 1) +
+  geom_point(data = news.TFV.df.sum %>%
+               filter(percent_words_covered <= 0.9) %>%
+               tail(1), aes(x = rank_word,
+                            y = percent_words_covered),
+             color = "blue", size = 3) +
+  scale_x_continuous(breaks = seq(0,100000,5000)) +
+  scale_y_continuous(breaks = seq(0,1,0.05)) +
+  xlab("Number of uinique words (words sorted - occurence)") +
+  ylab("Total percentage % of all words covered in documents") +
+  ggtitle("Coverage of word instances in the corpus (news)")
+
+```
+
+On the plot, red line marks 50% of all words covered in the text, and blue line marks 90% of all words covered in the text. Gray shaded area shows the percentage of all words covered in the text by top n-most frequent words.
+
+We can see that around 700 top most frequent words cover 50% of all words in the text of news corpus (sampled data!).
+
+So if we draw the plot for **twitter corpus** we get:
+
+```{r twit_wordcoverage}
+twit.TFV.df.sum %>%
+  ggplot(aes(x = rank_word, y = percent_words_covered)) +
+  geom_area(fill = "gray61", color = "black", alpha = 0.3) +
+  geom_hline(yintercept = 0.5, color = "red", size = 1) +
+  geom_point(data = twit.TFV.df.sum %>%
+               filter(percent_words_covered <= 0.5) %>%
+               tail(1), aes(x = rank_word,
+                            y = percent_words_covered),
+             color = "red", size = 3) +
+  geom_hline(yintercept = 0.9, color = "blue", size = 1) +
+  geom_point(data = twit.TFV.df.sum %>%
+               filter(percent_words_covered <= 0.9) %>%
+               tail(1), aes(x = rank_word,
+                            y = percent_words_covered),
+             color = "blue", size = 3) +
+  scale_x_continuous(breaks = c(seq(0,100000,5000))) +
+  scale_y_continuous(breaks = seq(0,1,0.05)) +
+  xlab("Number of uinique words (words sorted - occurence)") +
+  ylab("Total percentage % of all words covered in documents") +
+  ggtitle("Coverage of word instances in the corpus (twitter)")
+
+```
 
 
+We can see that around 350 top most frequent words cover 50% of all words in the text of twitter corpus (sampled data!).
 
+
+And finally the plot for **blogs corpus** we get:
+
+```{r blog_wordcoverage}
+blog.TFV.df.sum %>%
+  ggplot(aes(x = rank_word, y = percent_words_covered)) +
+  geom_area(fill = "gray61", color = "black", alpha = 0.3) +
+  geom_hline(yintercept = 0.5, color = "red", size = 1) +
+  geom_point(data = blog.TFV.df.sum %>%
+               filter(percent_words_covered <= 0.5) %>%
+               tail(1), aes(x = rank_word,
+                            y = percent_words_covered),
+             color = "red", size = 3) +
+  geom_hline(yintercept = 0.9, color = "blue", size = 1) +
+  geom_point(data = blog.TFV.df.sum %>%
+               filter(percent_words_covered <= 0.9) %>%
+               tail(1), aes(x = rank_word,
+                            y = percent_words_covered),
+             color = "blue", size = 3) +
+  scale_x_continuous(breaks = seq(0,100000,2500)) +
+  scale_y_continuous(breaks = seq(0,1,0.05)) +
+  xlab("Number of uinique words (words sorted - occurence)") +
+  ylab("Total percentage % of all words covered in documents") +
+  ggtitle("Coverage of word instances in the corpus (blogs)")
+
+```
+
+
+We can see that around 600 top most frequent words cover 50% of all words in the text of blogs corpus (sampled data!).
 
 
 
 # Prediction Model
+
