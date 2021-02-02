@@ -246,6 +246,7 @@ news.bi.Grams.df %>%
   theme(axis.text.x = element_text(angle = 90))
 ```
 
+
 ```{r bigram_twit_bar}
 twit.bi.Grams.df %>%
   arrange(desc(Frequency)) %>%
@@ -260,6 +261,7 @@ twit.bi.Grams.df %>%
   ggtitle("Top 50 most frequent 2-grams in the corpus (twitter)") +
   theme(axis.text.x = element_text(angle = 90))
 ```
+
 
 ```{r bigram_blog_bar}
 # blogs
@@ -307,7 +309,7 @@ news.three.Grams.df %>%
   ggplot(aes(x = word, y = Frequency)) +
   geom_col(color = "black") +
   scale_y_continuous(breaks = seq(0,1000,10)) +
-  xlab("2-gram word") +
+  xlab("3-gram word") +
   ylab("Frequency (3-gram count in documents)") +
   ggtitle("Top 50 most frequent 3-grams in the corpus (news)") +
   theme(axis.text.x = element_text(angle = 90))
@@ -323,7 +325,7 @@ twit.three.Grams.df %>%
   ggplot(aes(x = word, y = Frequency)) +
   geom_col(color = "black") +
   scale_y_continuous(breaks = seq(0,1000,10)) +
-  xlab("2-gram word") +
+  xlab("3-gram word") +
   ylab("Frequency (3-gram count in documents)") +
   ggtitle("Top 50 most frequent 3-grams in the corpus (twitter)") +
   theme(axis.text.x = element_text(angle = 90))
@@ -339,7 +341,7 @@ blog.three.Grams.df %>%
   ggplot(aes(x = word, y = Frequency)) +
   geom_col(color = "black") +
   scale_y_continuous(breaks = seq(0,100,10)) +
-  xlab("2-gram word") +
+  xlab("3-gram word") +
   ylab("Frequency (3-gram count in documents)") +
   ggtitle("Top 50 most frequent 3-grams in the corpus (blogs)") +
   theme(axis.text.x = element_text(angle = 90))
@@ -411,7 +413,7 @@ blog.four.Grams.df %>%
   scale_y_continuous(breaks = seq(0,100,2)) +
   xlab("4-gram word") +
   ylab("Frequency (4-gram count in documents)") +
-  ggtitle("Top 50 most frequent 4-grams in the corpus (twitter)") +
+  ggtitle("Top 50 most frequent 4-grams in the corpus (blogs)") +
   theme(axis.text.x = element_text(angle = 90))
 
 ```
@@ -522,7 +524,7 @@ blog.TFV.df.sum %>%
                tail(1), aes(x = rank_word,
                             y = percent_words_covered),
              color = "blue", size = 3) +
-  scale_x_continuous(breaks = seq(0,100000,2500)) +
+  scale_x_continuous(breaks = seq(0,100000,5000)) +
   scale_y_continuous(breaks = seq(0,1,0.05)) +
   xlab("Number of uinique words (words sorted - occurence)") +
   ylab("Total percentage % of all words covered in documents") +
@@ -535,5 +537,39 @@ We can see that around 600 top most frequent words cover 50% of all words in the
 
 
 
-# Prediction Model
+# Model & Word prediction App
+
+The next step and the main part of the project is to build the prediction algorithm, which will predict the next word using the sequence of words provided by the user. This prediction algorithm falls in the field of **Natural Language Processing** (**NLP**) - language modeling. Algorithm will be integrated into Shiny app, so the model can be applied via online Shiny app. We haven't finished this final step, but we have set the path that will lead to final model.
+
+The basic idea for the algorithm is, we would like to predict the word $w_k$, if we know the sequence of words provided by the app user ($w_1$, $w_2$, ..., $w_{k-1}$). So the user can provide one word in this case $k$ is 2, or it can provide 2 words then $k$ is 3 and so on. The general prediction for the word we are looking for is:
+
+
+$$p(w_k|w_{k-1}w_{k-2}...w_1)$$
+
+Where we are predicting a probability for the word $w_k$ (word not provided by user, that is a logical next word after the sequence of words provided by user). We know the sequence of words provided by the user ($w_{k-1}w_{k-2}...w_1$), which are prior to the word we are trying to predict. We will use our corpus data and build $n$-grams in order to calculate counts for different combinations of word sequences that go with the word inputted by the user.
+
+We will try to make the model as simple as possible, therefore we will not consider a very long sequence of prior words, but will consider only a few prior words (most recent). So our modeling will be easier in the sense of calculations complexity. And also this methodology is backed up with so called **Markov assumption** -  we do not have to take the whole prior word sequence  history, but we can provide only few $n-1$ past terms. So the prediction looks like this:
+
+$$p(w_i|w_1...w_{i-1}) = p(w_i|w_{i-n+1}...w_{i-1})$$
+
+This is easier to incorporate using real data, and we will not be too far from the truth.
+
+
+For example let's say, that the user inputs only one word, and would like to get the prediction for the next (second) word. This can be seen as a bi-gram language model:
+
+$$p(w) = \prod_{i=1}^{k+1}p(w_i|w_{i-1})$$
+
+So in this case we would be able to estimate probabilities using calculated bi-grams from our real data corpus by calculating conditional probabilities with word counts from the data:
+
+
+$$p(w_i|w_{i-1}) = \frac{c(w_{i-1}w_i)}{\sum_{w_i}c(w_{i-1}w_i)}$$
+Where $c()$ stands for counting word frequencies and $w_{i-1}w_i$ is a bi-gram word sequence, where $w_i$ is the word we are predicting (from the corpus), and $w_{i-1}$ is a word provided by the user of the app (we will try to find in bi-grams).
+
+Here we will be able to use bi-grams, three-grams and so on. But there are still some aspects needed to be considered:
+
+* what to do with the words not seen in the corpus data?
+* what is the optimal size for n-gram tables used in the prediction (we will run the model on Shiny servers)?
+* how to "smooth" the word probabilities?
+* how to integrate a so called **backoff model** for estimating the probabilities of unobserved n-grams?
+* how to integrate the model with the Shiny app?
 
