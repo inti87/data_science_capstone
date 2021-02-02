@@ -25,9 +25,9 @@ libraries <- c("tm", "RWeka", "stringr", "dplyr", "tidyr", "ggplot2", "forcats",
 load_lib(libraries)
 
 # Import data (from prep procedure step)
-load("./data/data_proc/strange_chars_not_removed/02_data_prep_news_all_objects.RData")
-load("./data/data_proc/strange_chars_not_removed/02_data_prep_twit_all_objects.RData")
-load("./data/data_proc/strange_chars_not_removed/02_data_prep_blog_all_objects.RData")
+load("./data/data_proc/02_data_prep_news_all_objects.RData")
+load("./data/data_proc/02_data_prep_twit_all_objects.RData")
+load("./data/data_proc/02_data_prep_blog_all_objects.RData")
 
 
 # EDA
@@ -48,7 +48,7 @@ news.TFV.df.sum %>%
   mutate(word = fct_inorder(f = word)) %>% 
   ggplot(aes(x = word, y = frequency)) +
   geom_col(color = "black") +
-  scale_y_continuous(breaks = seq(0,300000,25000)) +
+  scale_y_continuous(breaks = seq(0,25000,1000)) +
   xlab("Word") +
   ylab("Frequency (word count in documents)") +
   ggtitle("Top 50 most frequent words in the corpus (news)") +
@@ -73,7 +73,7 @@ twit.TFV.df.sum %>%
   mutate(word = fct_inorder(f = word)) %>% 
   ggplot(aes(x = word, y = frequency)) +
   geom_col(color = "black") +
-  scale_y_continuous(breaks = seq(0,200000,25000)) +
+  scale_y_continuous(breaks = seq(0,10000,500)) +
   xlab("Word") +
   ylab("Frequency (word count in documents)") +
   ggtitle("Top 50 most frequent words in the corpus (twitter)") +
@@ -98,7 +98,7 @@ blog.TFV.df.sum %>%
   mutate(word = fct_inorder(f = word)) %>% 
   ggplot(aes(x = word, y = frequency)) +
   geom_col(color = "black") +
-  scale_y_continuous(breaks = seq(0,200000,25000)) +
+  scale_y_continuous(breaks = seq(0,20000,2500)) +
   xlab("Word") +
   ylab("Frequency (word count in documents)") +
   ggtitle("Top 50 most frequent words in the corpus (blogs)") +
@@ -131,7 +131,7 @@ news.bi.Grams.df %>%
   mutate(word = fct_inorder(f = word)) %>% 
   ggplot(aes(x = word, y = Frequency)) +
   geom_col(color = "black") +
-  scale_y_continuous(breaks = seq(0,20000,500)) +
+  scale_y_continuous(breaks = seq(0,2000,250)) +
   xlab("2-gram word") +
   ylab("Frequency (2-gram count in documents)") +
   ggtitle("Top 50 most frequent 2-grams in the corpus (news)") +
@@ -140,7 +140,7 @@ news.bi.Grams.df %>%
 set.seed(135) # randomness in positioning labels in the cloud
 news.bi.Grams.df %>% 
   arrange(desc(Frequency)) %>% 
-  head(250) %>% 
+  head(150) %>% 
   mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>% 
   mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>% 
   ggplot(aes(label = Word, 
@@ -158,7 +158,7 @@ twit.bi.Grams.df %>%
   mutate(word = fct_inorder(f = word)) %>% 
   ggplot(aes(x = word, y = Frequency)) +
   geom_col(color = "black") +
-  scale_y_continuous(breaks = seq(0,1000,10)) +
+  scale_y_continuous(breaks = seq(0,1000,100)) +
   xlab("2-gram word") +
   ylab("Frequency (2-gram count in documents)") +
   ggtitle("Top 50 most frequent 2-grams in the corpus (twitter)") +
@@ -186,7 +186,7 @@ blog.bi.Grams.df %>%
   mutate(word = fct_inorder(f = word)) %>% 
   ggplot(aes(x = word, y = Frequency)) +
   geom_col(color = "black") +
-  scale_y_continuous(breaks = seq(0,1000,10)) +
+  scale_y_continuous(breaks = seq(0,1000,100)) +
   xlab("2-gram word") +
   ylab("Frequency (2-gram count in documents)") +
   ggtitle("Top 50 most frequent 2-grams in the corpus (blogs)") +
@@ -195,7 +195,7 @@ blog.bi.Grams.df %>%
 set.seed(135) # randomness in positioning labels in the cloud
 blog.bi.Grams.df %>% 
   arrange(desc(Frequency)) %>% 
-  head(150) %>% 
+  head(100) %>% 
   mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>% 
   mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>% 
   ggplot(aes(label = Word, 
@@ -216,7 +216,7 @@ news.three.Grams.df %>%
   mutate(word = fct_inorder(f = word)) %>% 
   ggplot(aes(x = word, y = Frequency)) +
   geom_col(color = "black") +
-  scale_y_continuous(breaks = seq(0,100,2)) +
+  scale_y_continuous(breaks = seq(0,1000,10)) +
   xlab("2-gram word") +
   ylab("Frequency (3-gram count in documents)") +
   ggtitle("Top 50 most frequent 3-grams in the corpus (news)") +
@@ -243,7 +243,7 @@ twit.three.Grams.df %>%
   mutate(word = fct_inorder(f = word)) %>% 
   ggplot(aes(x = word, y = Frequency)) +
   geom_col(color = "black") +
-  scale_y_continuous(breaks = seq(0,100,2)) +
+  scale_y_continuous(breaks = seq(0,1000,10)) +
   xlab("2-gram word") +
   ylab("Frequency (3-gram count in documents)") +
   ggtitle("Top 50 most frequent 3-grams in the corpus (twitter)") +
@@ -270,7 +270,7 @@ blog.three.Grams.df %>%
   mutate(word = fct_inorder(f = word)) %>% 
   ggplot(aes(x = word, y = Frequency)) +
   geom_col(color = "black") +
-  scale_y_continuous(breaks = seq(0,100,2)) +
+  scale_y_continuous(breaks = seq(0,100,10)) +
   xlab("2-gram word") +
   ylab("Frequency (3-gram count in documents)") +
   ggtitle("Top 50 most frequent 3-grams in the corpus (blogs)") +
@@ -300,7 +300,7 @@ news.four.Grams.df %>%
   mutate(word = fct_inorder(f = word)) %>% 
   ggplot(aes(x = word, y = Frequency)) +
   geom_col(color = "black") +
-  scale_y_continuous(breaks = seq(0,100,1)) +
+  scale_y_continuous(breaks = seq(0,100,2)) +
   xlab("4-gram word") +
   ylab("Frequency (4-gram count in documents)") +
   ggtitle("Top 50 most frequent 4-grams in the corpus (news)") +

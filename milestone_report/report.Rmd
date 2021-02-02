@@ -1,0 +1,362 @@
+---
+title: "Data Science Capstone - Milestone Report"
+author: "Marko Intihar"
+date: "2/2/2021"
+output: html_document
+---
+
+```{r setoptions, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, fig.width = 10, fig.height = 6,
+                      warning = FALSE)
+```
+
+```{r libraries}
+# Load libraries
+library(dplyr)
+library(tidyr) 
+library(ggplot2) 
+library(forcats) 
+library(ggwordcloud)
+```
+
+
+```{r import, echo=FALSE, cache=TRUE}
+# Import data (from prep procedure step)
+load("02_data_prep_news_all_objects.RData")
+load("02_data_prep_twit_all_objects.RData")
+load("02_data_prep_blog_all_objects.RData")
+```
+
+
+# Problem
+
+The main goal of project is to build a language prediction model application using Shiny App. The user of the app will input a text of one, two, three or maybe more words, and model must predict the next logical word for inputted text. This is done using text corpus and language prediction model. 
+
+# Data
+
+For this project we are using 3 different english language corpus sources:
+
+* **news**    (corpus containing news)
+* **twitter** (corpus containing twitter data)
+* **blogs**   (corpus containing blogs)
+
+The data was downloaded from the link provided, it was unzipped and imported into R. Original corpus data is different in size, since:
+
+* news corpus consists of around 1 million lines
+* twitter corpus consists of around 2.3 million lines
+* and blogs corpus has around 900 thousand lines
+
+Lines are different in size with respect to number of words and characters in each line.
+
+In order to build a model we first has to apply some data cleaning and also some data exploration.
+
+
+## Data cleaning
+
+After all three corpus data were imported into R session, the data cleaning was applied. For this operation we have used R's library called **tm**, which already includes many functions for tex mining. Corpus cleaning consists of given steps:
+
+* convert raw text to character vectors
+* remove punctuation from the text
+* convert all text to lower case
+* remove stop words (english language stop words like: the, he, have, I, etc.)
+* remove profanity words (bad words)
+* remove additional white spaces from the text
+* create stemmed text (text stemming is the process of reducing words to their word stem)
+
+Since we do not have unlimited computer power in sense of CPU and RAM, we have decided to create sample data for each corpus. Sample corpus must represent the original data set. Sample corpus is used for data exploration and further for building language prediction model.
+
+
+After data cleaning step we have created corpus samples, for each corpus 100 thousand lines were randomly selected, so the samples represent the given percentage of the original data (if we count lines):
+
+* news sample - around 10% of original lines
+* twitter sample - around 5% of original lines
+* blogs sample - around 12% of original lines
+
+
+### Data preparation
+
+Next step of the given analysis involves data preparation. In this step the first part covers:
+
+* building term document matrix (TDM)
+* then building term frequency vector (TFV)
+* and converting TFV to data frame
+* and calculating word frequencies using TFV data frame
+
+Word frequencies represent the occurrence or number of times each word appears in the given corpus. Word frequencies are a main tool for building our prediction model in the further steps.
+
+Also for prediction model we must create so called **n-grams**. In the context of given problem a *n-gram* is a sequence of **n** words that appear together in the observed text. They build a context of given text and we can count how many times certain words appear together. n-grams will be a baseline for our word prediction algorithm. We can use different values for **n**, such as:
+
+* $n=1$ - uni-grams (one word)
+* $n=2$ - bi-grams (two words)
+* $n=3$ - three-grams (three words)
+* $n=4$ - four-grams (four words)
+* and so on ...
+
+To build different *n-grams* we used R's library *RWeka*, which provides a function called **NGramTokenizer** that does do the job. Mentioned function and all the other function from selected package come from application called *Weka*, which is mainly used for machine learning purposes.  
+
+
+
+# Exploratory Data Analysis
+
+Exploratory data analysis or EDA was applied on the sampled data. Since generated samples are quite big, we believe that applying exploration on samples should not be an issue. In the EDA step we were trying to answer few given questions. 
+
+### Word frequencies
+
+The first question we were trying to find an answer for, is:
+
+*"Some words are more frequent than others, what are the distributions of word frequencies?"*
+
+Here we are using word frequencies and trying to show the most frequent words for each corpus.
+
+So the distribution of top 50 words in the **news corpus** is:
+
+```{r newstop50_bar}
+news.TFV.df.sum %>% 
+  filter(rank_word <= 50) %>% 
+  mutate(word = fct_inorder(f = word)) %>% 
+  ggplot(aes(x = word, y = frequency)) +
+  geom_col(color = "black") +
+  scale_y_continuous(breaks = seq(0,25000,2500)) +
+  xlab("Word") +
+  ylab("Frequency (word count in documents)") +
+  ggtitle("Top 50 most frequent words in the corpus (news)") +
+  theme(axis.text.x = element_text(angle = 90))
+```
+Also we can create a **word cloud** for news corpus showing top 100 words (font size of each word is depends on word frequency in the corpus):
+
+```{r news_wordclund}
+set.seed(135) # randomness in positioning labels in the cloud
+news.TFV.df.sum %>% 
+  mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>% 
+  mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>% 
+  filter(rank_word <= 100) %>% 
+  ggplot(aes(label = word, 
+             size = frequency, 
+             angle = angle1)) +
+  geom_text_wordcloud() +
+  scale_size_area(max_size = 25) +
+  theme_minimal()
+```
+
+We can see that in the news corpus the top most three frequent words are: "said", "will", "year".
+
+
+Now lets show the distribution of top 50 words in the **twitter corpus**:
+
+```{r twittop50_bar}
+twit.TFV.df.sum %>% 
+  filter(rank_word <= 50) %>% 
+  mutate(word = fct_inorder(f = word)) %>% 
+  ggplot(aes(x = word, y = frequency)) +
+  geom_col(color = "black") +
+  scale_y_continuous(breaks = seq(0,10000,500)) +
+  xlab("Word") +
+  ylab("Frequency (word count in documents)") +
+  ggtitle("Top 50 most frequent words in the corpus (twitter)") +
+  theme(axis.text.x = element_text(angle = 90))
+
+```
+
+And word cloud for top 100 words:
+
+```{r twit_wordclund}
+set.seed(135) # randomness in positioning labels in the cloud
+twit.TFV.df.sum %>% 
+  mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>% 
+  mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>% 
+  filter(rank_word <= 100) %>% 
+  ggplot(aes(label = word, 
+             size = frequency, 
+             angle = angle1)) +
+  geom_text_wordcloud() +
+  scale_size_area(max_size = 15) +
+  theme_minimal()
+```
+
+In the twitter corpus the top most three frequent words are: "just", "get", "like".
+
+
+Now for the **blogs corpus**:
+
+```{r blogtop50_bar}
+blog.TFV.df.sum %>% 
+  filter(rank_word <= 50) %>% 
+  mutate(word = fct_inorder(f = word)) %>% 
+  ggplot(aes(x = word, y = frequency)) +
+  geom_col(color = "black") +
+  scale_y_continuous(breaks = seq(0,20000,2500)) +
+  xlab("Word") +
+  ylab("Frequency (word count in documents)") +
+  ggtitle("Top 50 most frequent words in the corpus (blogs)") +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+
+```{r blogs_wordclund}
+set.seed(135) # randomness in positioning labels in the cloud
+blog.TFV.df.sum %>% 
+  mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>% 
+  mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>% 
+  filter(rank_word <= 100) %>% 
+  ggplot(aes(label = word, 
+             size = frequency, 
+             angle = angle1)) +
+  geom_text_wordcloud() +
+  scale_size_area(max_size = 15) +
+  theme_minimal()
+```
+
+In the blogs data the three most frequent words are: "one", "will", "like".
+
+
+### n-gram word frequencies
+
+The second question is:
+
+*"What are the frequencies of 2-grams and 3-grams in the data set?"*
+
+Firs lets draw a distribution of word frequencies for **bi-grams** (all three corpus):
+
+```{r bigram_news_bar}
+# news
+news.bi.Grams.df %>%
+  arrange(desc(Frequency)) %>% 
+  head(50) %>% 
+  mutate(word = as.character(Word)) %>% 
+  mutate(word = fct_inorder(f = word)) %>% 
+  ggplot(aes(x = word, y = Frequency)) +
+  geom_col(color = "black") +
+  scale_y_continuous(breaks = seq(0,2000,250)) +
+  xlab("2-gram word") +
+  ylab("Frequency (2-gram count in documents)") +
+  ggtitle("Top 50 most frequent 2-grams in the corpus (news)") +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+```{r bigram_twit_bar}
+twit.bi.Grams.df %>%
+  arrange(desc(Frequency)) %>% 
+  head(50) %>% 
+  mutate(word = as.character(Word)) %>% 
+  mutate(word = fct_inorder(f = word)) %>% 
+  ggplot(aes(x = word, y = Frequency)) +
+  geom_col(color = "black") +
+  scale_y_continuous(breaks = seq(0,1000,100)) +
+  xlab("2-gram word") +
+  ylab("Frequency (2-gram count in documents)") +
+  ggtitle("Top 50 most frequent 2-grams in the corpus (twitter)") +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+```{r bigram_blog_bar}
+# blogs
+blog.bi.Grams.df %>%
+  arrange(desc(Frequency)) %>% 
+  head(50) %>% 
+  mutate(word = as.character(Word)) %>% 
+  mutate(word = fct_inorder(f = word)) %>% 
+  ggplot(aes(x = word, y = Frequency)) +
+  geom_col(color = "black") +
+  scale_y_continuous(breaks = seq(0,1000,100)) +
+  xlab("2-gram word") +
+  ylab("Frequency (2-gram count in documents)") +
+  ggtitle("Top 50 most frequent 2-grams in the corpus (blogs)") +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+Also we can draw word cloud (only bi-gram from news drawn):
+
+```{r bigram_news_cloud}
+set.seed(135) # randomness in positioning labels in the cloud
+news.bi.Grams.df %>% 
+  arrange(desc(Frequency)) %>% 
+  head(50) %>% 
+  mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>% 
+  mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>% 
+  ggplot(aes(label = Word, 
+             size = Frequency, 
+             angle = angle1)) +
+  geom_text_wordcloud() +
+  scale_size_area(max_size = 20) +
+  theme_minimal()
+```
+
+
+The same can be applied for three-grams:
+
+```{r threegram_news_bar}
+# news
+news.three.Grams.df %>%
+  arrange(desc(Frequency)) %>% 
+  head(50) %>% 
+  mutate(word = as.character(Word)) %>% 
+  mutate(word = fct_inorder(f = word)) %>% 
+  ggplot(aes(x = word, y = Frequency)) +
+  geom_col(color = "black") +
+  scale_y_continuous(breaks = seq(0,1000,10)) +
+  xlab("2-gram word") +
+  ylab("Frequency (3-gram count in documents)") +
+  ggtitle("Top 50 most frequent 3-grams in the corpus (news)") +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+```{r threegram_twit_bar}
+# twitter
+twit.three.Grams.df %>%
+  arrange(desc(Frequency)) %>% 
+  head(50) %>% 
+  mutate(word = as.character(Word)) %>% 
+  mutate(word = fct_inorder(f = word)) %>% 
+  ggplot(aes(x = word, y = Frequency)) +
+  geom_col(color = "black") +
+  scale_y_continuous(breaks = seq(0,1000,10)) +
+  xlab("2-gram word") +
+  ylab("Frequency (3-gram count in documents)") +
+  ggtitle("Top 50 most frequent 3-grams in the corpus (twitter)") +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+```{r threegram_blog_bar}
+# blogs
+blog.three.Grams.df %>%
+  arrange(desc(Frequency)) %>% 
+  head(50) %>% 
+  mutate(word = as.character(Word)) %>% 
+  mutate(word = fct_inorder(f = word)) %>% 
+  ggplot(aes(x = word, y = Frequency)) +
+  geom_col(color = "black") +
+  scale_y_continuous(breaks = seq(0,100,10)) +
+  xlab("2-gram word") +
+  ylab("Frequency (3-gram count in documents)") +
+  ggtitle("Top 50 most frequent 3-grams in the corpus (blogs)") +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+
+News three-gram word cloud:
+
+```{r threegram_news_cloud}
+set.seed(135) # randomness in positioning labels in the cloud
+news.three.Grams.df %>% 
+  arrange(desc(Frequency)) %>% 
+  head(50) %>% 
+  mutate(angle = 90 * sample(c(0,1), n(), replace = T, prob = c(0.7, 0.3))) %>% 
+  mutate(angle1 = 45 * sample(c(-2:2), n(), replace = T, prob = c(1,1,4,1,1))) %>% 
+  ggplot(aes(label = Word, 
+             size = Frequency, 
+             angle = angle1)) +
+  geom_text_wordcloud() +
+  scale_size_area(max_size = 10) +
+  theme_minimal()
+```
+
+
+### Word coverage
+
+
+
+
+
+
+
+# Prediction Model
