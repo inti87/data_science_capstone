@@ -1,3 +1,16 @@
+#' Create n-gram tokens data frame
+#'
+#' This function creates frequency - occurence of of n-gram words in probvided corpus
+#' 
+#' @param corpus a clean corpus 
+#' @param n parameter for determining n-gram size
+#' @param batch.mode option for creating table in smaller batches : using smaller batches (TRUE) and not using batches all in one run (FALSE)
+#' @param batch.size number determining batch size for splitting clean corpus
+#' @return a n-gram frequency data frame
+#' @return execution time (for each batch)
+#' @author Marko Intihar
+
+
 n_gram_df_build <- function(corpus, 
                             n,
                             batch.mode = TRUE,

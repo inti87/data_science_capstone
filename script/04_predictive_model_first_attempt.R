@@ -40,7 +40,7 @@ freq.4.gram.news.probs <- conditional_prob_n_grams(news.four.Grams.df)
 # Simple model
 
 # Split string
-string   <- "return call seek"
+string   <- "body"
 strings  <- strsplit(string, " ") %>% unlist()
 words.nr <- length(strings)
 
@@ -54,6 +54,7 @@ if(words.nr == 0){
     arrange(desc(probability)) %>% 
     head(1) %>% 
     pull(word_predicted)
+  print(prediction.n2)
     
 }else if(words.nr == 2){
   n2.token <- strings[2]
@@ -64,12 +65,14 @@ if(words.nr == 0){
     arrange(desc(probability)) %>% 
     head(1) %>% 
     pull(word_predicted)
+  print(prediction.n2)
   
   prediction.n3 <- freq.3.gram.news.probs %>% 
     filter(words_prior == n3.token) %>% 
     arrange(desc(probability)) %>% 
     head(1) %>% 
     pull(word_predicted)
+  print(prediction.n3)
   
 }else if(words.nr >= 3){
   n2.token <- strings[words.nr]
@@ -82,18 +85,21 @@ if(words.nr == 0){
     arrange(desc(probability)) %>% 
     head(1) %>% 
     pull(word_predicted)
+  print(prediction.n2)
   
   prediction.n3 <- freq.3.gram.news.probs %>% 
     filter(words_prior == n3.token) %>% 
     arrange(desc(probability)) %>% 
     head(1) %>% 
     pull(word_predicted)
+  print(prediction.n3)
   
   prediction.n4 <- freq.4.gram.news.probs %>% 
     filter(words_prior == n4.token) %>% 
     arrange(desc(probability)) %>% 
     head(1) %>% 
     pull(word_predicted)
+  print(prediction.n4)
   
 }
 

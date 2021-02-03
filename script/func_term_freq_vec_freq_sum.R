@@ -1,3 +1,12 @@
+#' Aggregate summarize frequencies of term frequency vector (data frame format) on word level
+#'
+#' This function converts calculates total frequencies of word occurence in TFV data frame
+#' 
+#' @param TFV.df a term frequency vector in data frame format
+#' @return a term frequency vector in data frame format with frequencies summarized on a word level
+#' @author Marko Intihar
+
+
 term_freq_vec_freq_sum <- function(TFV.df){
   TFV.df.sum <- TFV.df %>% 
     group_by(word) %>% 
@@ -13,3 +22,4 @@ term_freq_vec_freq_sum <- function(TFV.df){
   
   return(TFV.df.sum)
 }
+

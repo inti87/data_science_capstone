@@ -1,3 +1,20 @@
+#' Function for calculating table of conditional probabilities for n-gram words 
+#'
+#' This function:
+#' - takes data frame of n-gram frequency occurence
+#' - splits each n-gram word into word predicted (last word) - w_i and words prior to predicted word (word sequence before last word) - w_1 w_2 ... w_i-1
+#' - calculates conditional probability using frequencies 
+#' - p(w_i|w_i-1 ... w_i-n+1) = c(w_i-1 ... w_i-n+1 w_i) / c(w_i-1 ... w_i-n+1
+#' 
+#' @details
+#' This is baseline for our n-gram language model for predicting the 
+#' next most obvious word by providing a word sequence!
+#'  
+#' @param n_gram_df a clean corpus 
+#' @return a n-gram frequency data frame
+#' @author Marko Intihar
+
+
 conditional_prob_n_grams <- function(n_gram_df){
   
   # additonal removing non-alphanumeric characters 
