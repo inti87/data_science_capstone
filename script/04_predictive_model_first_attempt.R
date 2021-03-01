@@ -7,7 +7,7 @@
 
 # author: Marko Intihar
 
-rm(list =ls())
+rm(list = ls())
 graphics.off()
 
 
@@ -18,7 +18,7 @@ source("./script/func_merge_n_grams.R")
 
 
 # Load libraries
-libraries <- c("dplyr", "tidyr", "ggplot2", "stringr", "stringi")
+libraries <- c("dplyr", "tidyr", "ggplot2", "stringr", "stringi", "tm")
 load_lib(libraries)
 
 
@@ -43,10 +43,22 @@ freq.3.gram.news.probs <- conditional_prob_n_grams(n.grams.3.df)
 freq.4.gram.news.probs <- conditional_prob_n_grams(n.grams.4.df)
 
 
+### Profanity - bad words
+profanity_words <- read.csv(file = "http://www.bannedwordlist.com/lists/swearWords.txt") %>% 
+  pull() %>% 
+  VectorSource(.)
+
+
+#save.image(file = "./data/data_proc/04_data.RData")
+#load("./data/data_proc/04_data.RData")
+
+
 # Simple model
 
 # Split string
-string   <- "boot"
+string   <- "school"
+string <- suppressWarnings(clean_corpus(Corpus(VectorSource(string)))$content)
+
 strings  <- strsplit(string, " ") %>% unlist()
 words.nr <- length(strings)
 
@@ -108,4 +120,89 @@ if(words.nr == 0){
   print(prediction.n4)
   
 }
+
+
+
+
+# Split string
+string <- "auction new york citi"
+# string <- "last year although"
+# string <- "ice cream"
+# string <- "ice"
+
+# clean initial string
+string <- suppressWarnings(clean_corpus(Corpus(VectorSource(string)))$content)
+
+# split string into words
+strings  <- strsplit(string, " ") %>% unlist()
+
+# keep only last 4 words or 3,2,1
+if(length(strings) >= 4){
+  words.nr <- length(strings)
+  strings <- strings[(words.nr-2):words.nr]
+}
+
+words.nr <- length(strings) # number of prior words
+
+
+# initial search setting 
+#  -- number of steps - depth
+#  -- ngram tables
+
+
+# determine initial n-gram for search
+rm(steps, ngrams)
+if(words.nr == 1){
+  ngrams <- list(s1 = freq.2.gram.news.probs)
+  steps <- 1
+}else if(words.nr == 2){
+  ngrams <- list(s1 = freq.3.gram.news.probs,
+                 s2 = freq.2.gram.news.probs)
+  steps <- 2
+}else{
+  ngrams <- list(s1 = freq.4.gram.news.probs,
+                 s2 = freq.3.gram.news.probs,
+                 s3 = freq.2.gram.news.probs)
+  steps <- 3
+}
+
+# store results
+df.words_predicted <- NULL
+
+# top frequent word search
+for(step in 1:steps){
+  
+  # words prior (for frequency search)
+  words_prior_ <- strings[(1+step-1):words.nr] %>% 
+    paste(., collapse = " ")
+  
+  # find most frequent word
+  df.word_predicted <- ngrams[[step]] %>% 
+    filter(words_prior == words_prior_) %>% 
+    arrange(desc(probability)) %>% 
+    head(1) 
+  
+  # store predicted words
+  df.words_predicted <- bind_rows(df.words_predicted, df.word_predicted)
+  
+  # if frequency is less than selected default values continue with search
+  # otherwise stop searching
+  if(df.word_predicted %>% pull(count_words_prior) < 5){
+    stop_search <- FALSE  
+  }else{
+    stop_search <- TRUE
+  }
+   
+  # stopping procedure
+  if(stop_search){break}
+  
+}
+
+# Final predicted word selection
+df.words_predicted %>% 
+  mutate(freq_ok = case_when(count_words_prior < 5 ~ FALSE,
+                             TRUE ~ TRUE)) %>% 
+  arrange(desc(freq_ok), desc(count_words_prior)) %>% 
+  head(1) %>% 
+  pull(word_predicted)
 
