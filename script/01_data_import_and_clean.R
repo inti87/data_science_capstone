@@ -72,9 +72,9 @@ save(data.en_blogs.corp.clean,   file = "./data/data_proc/blog_corpus_clean_full
 
 ### sample clean data
 set.seed(123)
-data.en_news.corp.clean    <- sample_lines(text = data.en_news.corp.clean,    type = "number", number = 100000)
-data.en_blogs.corp.clean   <- sample_lines(text = data.en_blogs.corp.clean,   type = "number", number = 100000)
-data.en_twitter.corp.clean <- sample_lines(text = data.en_twitter.corp.clean, type = "number", number = 100000)
+data.en_news.corp.clean    <- sample_lines(text = data.en_news.corp.clean,    type = "number", number = 20000)
+data.en_blogs.corp.clean   <- sample_lines(text = data.en_blogs.corp.clean,   type = "number", number = 20000)
+data.en_twitter.corp.clean <- sample_lines(text = data.en_twitter.corp.clean, type = "number", number = 20000)
 
 save(data.en_news.corp.clean,    file = "./data/data_proc/news_corpus_clean_sample.RData")
 save(data.en_twitter.corp.clean, file = "./data/data_proc/twit_corpus_clean_sample.RData")

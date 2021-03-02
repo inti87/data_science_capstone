@@ -125,10 +125,12 @@ if(words.nr == 0){
 
 
 # Split string
-string <- "auction new york citi"
+string <- "sometim next week"
 # string <- "last year although"
-# string <- "ice cream"
-# string <- "ice"
+string <- "ice cream"
+string <- "ice"
+string <- "slovenijajaja slovenijajaja slovenijajaja"
+
 
 # clean initial string
 string <- suppressWarnings(clean_corpus(Corpus(VectorSource(string)))$content)
@@ -186,8 +188,11 @@ for(step in 1:steps){
   df.words_predicted <- bind_rows(df.words_predicted, df.word_predicted)
   
   # if frequency is less than selected default values continue with search
+  # and if nothing is found
   # otherwise stop searching
-  if(df.word_predicted %>% pull(count_words_prior) < 5){
+  if(nrow(df.words_predicted) == 0){ # no word found
+    stop_search <- FALSE  
+  }else if(df.word_predicted %>% pull(count_words_prior) < 5){ # not so frequent word found
     stop_search <- FALSE  
   }else{
     stop_search <- TRUE
@@ -195,14 +200,22 @@ for(step in 1:steps){
    
   # stopping procedure
   if(stop_search){break}
-  
 }
 
 # Final predicted word selection
-df.words_predicted %>% 
-  mutate(freq_ok = case_when(count_words_prior < 5 ~ FALSE,
-                             TRUE ~ TRUE)) %>% 
-  arrange(desc(freq_ok), desc(count_words_prior)) %>% 
-  head(1) %>% 
-  pull(word_predicted)
+if(nrow(df.words_predicted) == 0){ # if no word found
+  message("Sorry no matching found, please insert a different phrase!")
+}else{ # matching found
+  df.words_predicted %>% 
+    mutate(freq_ok = case_when(count_words_prior < 5 ~ FALSE,
+                               TRUE ~ TRUE)) %>% 
+    arrange(desc(freq_ok), desc(probability)) %>% 
+    head(1) %>% 
+    pull(word_predicted)
+}
 
+
+
+# using a function
+source("./script/func_predict_next_word.R")
+predict_next_word("universe")
