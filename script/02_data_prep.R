@@ -55,7 +55,7 @@ news.TFV <- sapply(data.en_news.corp.clean, termFreq)
 news.TFV.df <- term_freq_vec_df(TFV = news.TFV, 
                                 parallel = TRUE, 
                                 batch.mode = TRUE, 
-                                batch.size = 25000) 
+                                batch.size = 10000) 
 
 ## Term frequency vector word level summarized
 news.TFV.df.sum <- term_freq_vec_freq_sum(news.TFV.df)
@@ -75,14 +75,15 @@ save(news.TFV.df.sum, news.uni.Grams.df,
 
 save.image(file = "./data/data_proc/02_data_prep_news_all_objects.RData")
 
-# rm(list =ls())
-# gc()
+rm(list =ls())
+gc()
 
 
 #-----------------------#
 #  b) twitter corpus    #
 #-----------------------#
 
+ch.import <-  "sample"
 
 if(ch.import == "sample"){
   load("./data/data_proc/twit_corpus_clean_sample.RData")
@@ -99,7 +100,7 @@ twit.TFV <- sapply(data.en_twitter.corp.clean, termFreq)
 twit.TFV.df <- term_freq_vec_df(TFV = twit.TFV, 
                                 parallel = TRUE, 
                                 batch.mode = TRUE, 
-                                batch.size = 25000) 
+                                batch.size = 10000) 
 
 ## Term frequency vector word level summarized
 twit.TFV.df.sum <- term_freq_vec_freq_sum(twit.TFV.df)
@@ -127,6 +128,7 @@ save.image(file = "./data/data_proc/02_data_prep_twit_all_objects.RData")
 #    c) blogs corpus    #
 #-----------------------#
 
+ch.import <-  "sample"
 
 if(ch.import == "sample"){
   load("./data/data_proc/blog_corpus_clean_sample.RData")
@@ -143,7 +145,7 @@ blog.TFV <- sapply(data.en_blogs.corp.clean, termFreq)
 blog.TFV.df <- term_freq_vec_df(TFV = blog.TFV, 
                                 parallel = TRUE, 
                                 batch.mode = TRUE, 
-                                batch.size = 25000) 
+                                batch.size = 10000) 
 
 ## Term frequency vector word level summarized
 blog.TFV.df.sum <- term_freq_vec_freq_sum(blog.TFV.df)

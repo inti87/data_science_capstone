@@ -1,0 +1,12 @@
+name: ShinyAppTest
+title: ShinyAppTest
+username:
+account: inti
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3755090
+bundleId: 4316758
+url: https://inti.shinyapps.io/ShinyAppTest/
+when: 1615218866.75592
+asMultiple: FALSE
+asStatic: FALSE

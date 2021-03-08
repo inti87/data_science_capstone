@@ -45,4 +45,3 @@ save(freq.2.gram.news.probs,
      freq.4.gram.news.probs,
      file = "./data/data_for_model/sample_100k_docs_cleaning_stop_bad_stem.RData")
 
-

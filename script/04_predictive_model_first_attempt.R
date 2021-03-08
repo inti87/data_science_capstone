@@ -217,5 +217,7 @@ if(nrow(df.words_predicted) == 0){ # if no word found
 
 
 # using a function
+load("./data/data_for_model/sample_100k_docs_cleaning_stop_bad_stem.RData")
+source("./script/func_corpus_cleaning.R")
 source("./script/func_predict_next_word.R")
-predict_next_word("universe")
+predict_next_word("dead or")
