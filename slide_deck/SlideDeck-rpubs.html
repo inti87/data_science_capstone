@@ -750,7 +750,7 @@ hljs.initHighlightingOnLoad();
   <div class="slides">
 
 <section data-state="section" data-transition="linear" data-transition-speed="default">
-<h1>Predict Next word - Shiny App</h1><p>Marko Intihar<br/>2021&#x2F;03&#x2F;09</p>
+<h1>Predict Next word - Shiny App</h1><p>Marko Intihar<br/>2021 &#x2F; 03 &#x2F;09</p>
 
 <div class="slideContent" >
 
@@ -758,25 +758,42 @@ hljs.initHighlightingOnLoad();
 
 </section>
 <section data-transition="linear" data-transition-speed="default">
-<h3>The idea</h3>
+<h3>The Idea</h3>
 <div class="slideContent" >
-<p>Have you ever wondered how your mobile phone tries to guess the next best word when you are writing text on your smart phone?</p>
+<p>Have you ever wondered how your mobile phone tries to guess the next best word when you are writing messages?</p>
 
-<p>The story behind the scene is that phone uses an algorithm that is predicting the next word using the most recent word or words you type on your phone.</p>
+<p>The story behind the scene is that phone applies an algorithm that is predicting the next word using the most recent word or words you type into your phone.</p>
+
+<p>The same logic has been used to create our Shiny App that tries to predict the next word considering a word or a phrase provided by the app user!</p>
 
 </div>
 
 </section>
 <section data-transition="linear" data-transition-speed="default">
-<h3>The algorithm 1&#x2F;2</h3>
+<h3>The Algorithm - idea</h3>
 <div class="slideContent" >
+<ul>
+<li><p>an input: a suitable text source (corpus) with a lot of words</p></li>
+<li><p>algorithm cleans the corpus and builds a <strong>n-gram word token frequency tables</strong></p></li>
+<li><p>where <strong>n-gram word token</strong> is a sequence of <strong>n</strong>-words that occur together in the text</p></li>
+<li><p>frequency: how many times a <strong>n-gram word token</strong> is found in the corpus (complete word sequence!)</p></li>
+</ul>
 
 </div>
 
 </section>
 <section data-transition="linear" data-transition-speed="default">
-<h3>The algorithm 2&#x2F;2</h3>
+<h3>The Algorithm - procedure</h3>
 <div class="slideContent" >
+<ul>
+<li>user of the app enters a word or a phrase</li>
+<li>algorithm extracts last <strong>n</strong>-words from given phrase</li>
+<li>and estimates the probability of the next word (after given phrase) based on <strong>n-gram word token frequency tables</strong></li>
+<li>if given combination is not found, algorithm uses <strong>n-1</strong> words for the search</li>
+<li>and if search is still not successful, algorithm is removing words until only one final word remains for the search</li>
+<li>if suitable <strong>n-gram word tokens</strong> are found, the algorithm picks the one with the highest probability </li>
+<li>and so the <strong>next best word</strong> is found</li>
+</ul>
 
 </div>
 
@@ -784,6 +801,17 @@ hljs.initHighlightingOnLoad();
 <section data-transition="linear" data-transition-speed="default">
 <h3>Shiny App</h3>
 <div class="slideContent" >
+<p>To test our &ldquo;Next Word Prediction&rdquo; - Shiny App please visit: <a href="https://inti.shinyapps.io/PredictNextWord">https://inti.shinyapps.io/PredictNextWord</a>.</p>
+
+<p>App usage:</p>
+
+<ul>
+<li>write your word or a sequence of words (a phrase) in the left window</li>
+<li>hit <strong>Submit</strong></li>
+<li>the algorithm will try to predict next best word</li>
+<li>prediction is shown in the right window</li>
+<li>if no match found the app will return a mesage: &ldquo;Sorry no matching found, please insert a different phrase!&rdquo;</li>
+</ul>
 
 </div>
 

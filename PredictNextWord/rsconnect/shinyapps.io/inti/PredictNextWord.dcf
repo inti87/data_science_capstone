@@ -1,0 +1,13 @@
+name: PredictNextWord
+title: PredictNextWord
+username:
+account: inti
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3755601
+bundleId: 4317085
+url: https://inti.shinyapps.io/PredictNextWord/
+when: 1615223359.11683
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: data.RData

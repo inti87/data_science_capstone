@@ -8,6 +8,7 @@ report_cache
 report_files
 sources
 dump*
-PredictNextWord/
-ShinyAppTest/freq_*
-ShinyAppTest/data.RData
+ShinyAppTest/
+PredictNextWord/freq_*
+PredictNextWord/data.RData
+PredictNextWord/rsconnect*
